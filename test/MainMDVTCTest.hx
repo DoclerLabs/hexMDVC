@@ -13,7 +13,7 @@ import flash.Lib;
  * ...
  * @author Francis Bourre
  */
-class MainMVCTest
+class MainMDVTCTest
 {
 	static public function main() : Void
 	{
