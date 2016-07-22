@@ -1,0 +1,35 @@
+{
+  "name": "hexmvc",
+  "version": "1.0.0",
+  "description": "hexMDVTC is an implementation of Model Driver View Trigger Command",
+  
+  "directories": {
+    "src": "src",
+	"test": "test" 
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/DoclerLabs/hexMDVTC.git"
+  },
+  "keywords": [
+    "haxe",
+    "mvc",
+    "hexmachina"
+  ],
+  "author": "DoclerLabs",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/DoclerLabs/hexMDVTC/issues"
+  },
+  "homepage": "https://github.com/DoclerLabs/hexMDVTC#readme",
+  
+  "devDependencies": {
+    "hexcore": "git+https://github.com/DoclerLabs/hexCore.git#master",
+    "hexannotation": "git+https://github.com/DoclerLabs/hexAnnotation.git#master",
+    "hexinject": "git+https://github.com/DoclerLabs/hexInject.git#master",
+    "hexunit": "git+https://github.com/DoclerLabs/hexUnit.git#master"
+  }
+}
