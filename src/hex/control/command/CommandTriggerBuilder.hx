@@ -3,6 +3,7 @@ package hex.control.command;
 import haxe.macro.Context;
 import haxe.macro.Expr.Field;
 import hex.annotation.MethodAnnotationData;
+import hex.control.Responder;
 import hex.module.IModule;
 import hex.util.MacroUtil;
 
@@ -34,7 +35,7 @@ class CommandTriggerBuilder
 		var tMap : Map<String, String> = new Map();
 		
 		//Create responder
-		var responderTypePath = MacroUtil.getTypePath( Type.getClassName( hex.control.controller.ControllerResponder ) );
+		var responderTypePath = MacroUtil.getTypePath( Type.getClassName( hex.control.Responder ) );
 
 		for ( method in data.methods )
 		{
