@@ -2,7 +2,7 @@ package hex.control.command;
 
 import hex.control.command.CommandTrigger;
 import hex.control.command.ICommandTrigger;
-import hex.control.controller.ICompletable;
+import hex.control.ICompletable;
 import hex.di.IDependencyInjector;
 import hex.di.InjectionEvent;
 import hex.domain.Domain;
