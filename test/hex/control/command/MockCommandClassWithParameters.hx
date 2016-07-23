@@ -1,13 +1,13 @@
 package hex.control.command;
 
 import haxe.Timer;
-import hex.control.order.Order;
+import hex.control.command.Command;
 
 /**
  * ...
  * @author Francis Bourre
  */
-class MockCommandClassWithParameters extends Order<String>
+class MockCommandClassWithParameters extends Command<String>
 {
 	var _message : String;
 	

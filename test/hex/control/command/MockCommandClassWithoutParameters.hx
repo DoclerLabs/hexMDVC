@@ -1,12 +1,12 @@
 package hex.control.command;
 
-import hex.control.order.Order;
+import hex.control.command.Command;
 
 /**
  * ...
  * @author Francis Bourre
  */
-class MockCommandClassWithoutParameters extends Order<Void>
+class MockCommandClassWithoutParameters extends Command<Void>
 {
 	public static var callCount : UInt = 0;
 	
