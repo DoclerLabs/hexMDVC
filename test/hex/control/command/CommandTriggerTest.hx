@@ -43,24 +43,24 @@ class CommandTriggerTest
 	@Test( "test controller call with mapping and without parameters" )
 	public function testControllerCallWithMappingAndWithoutParameters() : Void
 	{
-		MockOrderClassWithoutParameters.callCount = 0;
+		MockCommandClassWithoutParameters.callCount = 0;
 		
 		this._controller.print();
-		Assert.equals( 1, MockOrderClassWithoutParameters.callCount, "" );
+		Assert.equals( 1, MockCommandClassWithoutParameters.callCount, "" );
 	}
 	
 	@Async( "test controller call with mapping and parameters" )
 	public function testControllerCallWithMappingAndParameters() : Void
 	{
-		MockOrderClassWithoutParameters.callCount = 0;
+		MockCommandClassWithoutParameters.callCount = 0;
 		this._controller.say( "hola mundo", this ).onComplete( MethodRunner.asyncHandler( this._onTestComplete ) );
 	}
 	
 	function _onTestComplete( message : String ) : Void
 	{
-		Assert.equals( 1, MockOrderClassWithParameters.callCount, "" );
+		Assert.equals( 1, MockCommandClassWithParameters.callCount, "" );
 		Assert.equals( "hola mundo", message, "" );
-		Assert.equals( this, MockOrderClassWithParameters.sender, "" );
+		Assert.equals( this, MockCommandClassWithParameters.sender, "" );
 	}
 	
 	@Test( "test controller call without mapping" )
@@ -77,10 +77,10 @@ private class MockCommandTrigger extends CommandTrigger implements IMockCommandT
 		super();
 	}
 	
-	@Class( MockOrderClassWithoutParameters )
+	@Class( hex.control.command.MockCommandClassWithoutParameters )
 	public function print() : ICompletable<Void> { return null; }
 	
-	@Class( MockOrderClassWithParameters )
+	@Class( MockCommandClassWithParameters )
 	public function say( text : String, sender : CommandTriggerTest ) : ICompletable<String> { return null; }
 
 	public function sum( a : Int, b : Int ) : Int 
