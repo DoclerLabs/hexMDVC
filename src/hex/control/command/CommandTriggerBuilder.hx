@@ -69,7 +69,7 @@ class CommandTriggerBuilder
 								var action = new $typePath();
 								this.injector.injectInto( action );
 								action.setOwner( this.injector.getInstance( $p { modulePack } ) );
-						trace(action);		
+	
 								Reflect.callMethod( action, Reflect.field( action, action.executeMethodName ), $a { args } );
 								return new $responderTypePath( action );
 							};
