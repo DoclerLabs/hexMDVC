@@ -80,7 +80,7 @@ private class MockCommandTrigger extends CommandTrigger implements IMockCommandT
 	@Class( hex.control.command.MockCommandClassWithoutParameters )
 	public function print() : ICompletable<Void> { return null; }
 	
-	@Class( MockCommandClassWithParameters )
+	@Class( hex.control.command.MockCommandClassWithParameters )
 	public function say( text : String, sender : CommandTriggerTest ) : ICompletable<String> { return null; }
 
 	public function sum( a : Int, b : Int ) : Int 
