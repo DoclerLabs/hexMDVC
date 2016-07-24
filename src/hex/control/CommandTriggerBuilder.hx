@@ -36,7 +36,7 @@ class CommandTriggerBuilder
 		var fields = Context.getBuildFields();
 		
 		//parse annotations
-		fields = hex.annotation.AnnotationReader.parseMetadata( Type.getClassName( ICommandTrigger ), [ MapAnnotation ], true );
+		fields = hex.annotation.AnnotationReader.parseMetadata( Context.makeExpr( ICommandTrigger, Context.currentPos() ), [ MapAnnotation ], true );
 		
 		//get data result
 		var data = hex.annotation.AnnotationReader._static_classes[ hex.annotation.AnnotationReader._static_classes.length - 1 ];
