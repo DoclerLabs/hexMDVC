@@ -1,6 +1,5 @@
-package hex.control.command;
+package hex.control;
 
-import hex.control.ICompletable;
 import hex.error.IllegalStateException;
 import hex.log.ILogger;
 import hex.module.IModule;

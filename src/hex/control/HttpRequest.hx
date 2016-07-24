@@ -1,8 +1,7 @@
-package hex.control.command;
+package hex.control;
 
 import haxe.Http;
 import hex.collection.HashMap;
-import hex.control.command.Command;
 import hex.data.IParser;
 import hex.error.NullPointerException;
 import hex.log.Stringifier;

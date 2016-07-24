@@ -1,6 +1,6 @@
 package hex;
 
-import hex.control.command.CommandTriggerTest;
+import hex.control.CommandTriggerTest;
 
 /**
  * ...

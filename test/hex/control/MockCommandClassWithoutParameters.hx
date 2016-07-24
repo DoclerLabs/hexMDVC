@@ -1,6 +1,4 @@
-package hex.control.command;
-
-import hex.control.command.Command;
+package hex.control;
 
 /**
  * ...

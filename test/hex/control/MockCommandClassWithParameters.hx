@@ -1,7 +1,6 @@
-package hex.control.command;
+package hex.control;
 
 import haxe.Timer;
-import hex.control.command.Command;
 
 /**
  * ...
