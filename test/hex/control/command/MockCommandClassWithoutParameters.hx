@@ -12,7 +12,6 @@ class MockCommandClassWithoutParameters extends Command<Void>
 	
 	public function new() 
 	{
-		trace('MockOrderClassWithoutParameters');
 		super();
 	}
 	
