@@ -4,42 +4,48 @@ import haxe.macro.Context;
 import haxe.macro.Expr.Field;
 import hex.annotation.MethodAnnotationData;
 import hex.control.Responder;
+import hex.error.PrivateConstructorException;
 import hex.module.IModule;
+import hex.util.ClassUtil;
 import hex.util.MacroUtil;
 
 /**
  * ...
  * @author Francis Bourre
  */
+@:final 
 class CommandTriggerBuilder
 {
-	public static inline var ClassAnnotation : String = "Class";
+	public static inline var MapAnnotation : String = "Map";
 	
-	function new()
-	{
-		
-	}
+	static var modulePack  			= MacroUtil.getPack( Type.getClassName( IModule ) );
+	static var ICompletableName 	= ClassUtil.getClassNameFromFullyQualifiedName( Type.getClassName( ICompletable ) );
+	
+	#if macro
+	static var ICompletableClassType = MacroUtil.getClassType( Type.getClassName( ICompletable ) );
+	#end
+	
+	/** @private */
+    function new()
+    {
+        throw new PrivateConstructorException( "This class can't be instantiated." );
+    }
 	
 	macro static public function build() : Array<Field> 
 	{
-		var modulePack  = MacroUtil.getPack( Type.getClassName( IModule ) );
-		var fields      = Context.getBuildFields();
+		var fields = Context.getBuildFields();
 		
 		//parse annotations
-		fields = hex.annotation.AnnotationReader.parseMetadata( Type.getClassName( ICommandTrigger ), [ ClassAnnotation ], true );
+		fields = hex.annotation.AnnotationReader.parseMetadata( Type.getClassName( ICommandTrigger ), [ MapAnnotation ], true );
 		
 		//get data result
 		var data = hex.annotation.AnnotationReader._static_classes[ hex.annotation.AnnotationReader._static_classes.length - 1 ];
 		
 		//Create command class map
 		var tMap : Map<String, String> = new Map();
-		
-		//Create responder
-		var responderTypePath = MacroUtil.getTypePath( Type.getClassName( hex.control.Responder ) );
-
 		for ( method in data.methods )
 		{
-			tMap.set( method.methodName, getAnnotation( method, ClassAnnotation ) );
+			tMap.set( method.methodName, getAnnotation( method, MapAnnotation ) );
 		}
 
 		for ( field in fields ) 
@@ -56,22 +62,53 @@ class CommandTriggerBuilder
 						if ( commandClassName != null )
 						{
 							var typePath = MacroUtil.getTypePath( commandClassName );
-							var args = [ for (arg in func.args) macro $i { arg.name } ];
+							var args = [ for ( arg in func.args ) macro $i { arg.name } ];
 							
-							switch ( func.ret )
+							//get responder TypePath
+							var responderTypePath = switch ( func.ret )
 							{
 								case TPath( p ): 
+										
+										if ( p.name != ICompletableName )
+										{
+											var returnType = Context.getType( p.name );
+											
+											if ( !MacroUtil.implementsInterface( MacroUtil.getClassType( p.name ), ICompletableClassType ) )
+											{
+												Context.error( "returned type '" + p.name 
+													+ "' doesn't implement '"
+													+ ICompletableClassType
+													+ "' interface in method named '" 
+													+ methodName + "'", field.pos );
+											}
+											else
+											{
+												switch( returnType ) 
+												{ 
+													case TInst( t, s ): 
+														MacroUtil.getTypePath( '' + t );
+														
+													default: 
+														MacroUtil.getTypePath( Type.getClassName( Responder ) );
+												}
+											}
+										}
+										else
+										{
+											MacroUtil.getTypePath( Type.getClassName( Responder ) );
+										}
+										
 								default: null;
 							}
 
 							func.expr = macro 
 							{
-								var action = new $typePath();
-								this.injector.injectInto( action );
-								action.setOwner( this.injector.getInstance( $p { modulePack } ) );
+								var command = new $typePath();
+								this.injector.injectInto( command );
+								command.setOwner( this.injector.getInstance( $p { modulePack } ) );
 	
-								Reflect.callMethod( action, Reflect.field( action, action.executeMethodName ), $a { args } );
-								return new $responderTypePath( action );
+								Reflect.callMethod( command, Reflect.field( command, command.executeMethodName ), $a { args } );
+								return new $responderTypePath( command );
 							};
 						}
 					}

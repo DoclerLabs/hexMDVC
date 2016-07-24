@@ -74,11 +74,11 @@ private class MockCommandTrigger extends CommandTrigger implements IMockCommandT
 		super();
 	}
 	
-	@Class( hex.control.MockCommandClassWithoutParameters )
+	@Map( hex.control.MockCommandClassWithoutParameters )
 	public function print() : ICompletable<Void> { return null; }
 	
-	@Class( hex.control.MockCommandClassWithParameters )
-	public function say( text : String, sender : CommandTriggerTest ) : ICompletable<String> { return null; }
+	@Map( hex.control.MockCommandClassWithParameters )
+	public function say( text : String, sender : CommandTriggerTest ) : Responder<String> { return null; }
 
 	public function sum( a : Int, b : Int ) : Int 
 	{ 
@@ -89,7 +89,7 @@ private class MockCommandTrigger extends CommandTrigger implements IMockCommandT
 private interface IMockCommandTrigger extends ICommandTrigger
 {
 	function print() : ICompletable<Void>;
-	function say( text : String, sender : CommandTriggerTest ) : ICompletable<String>;
+	function say( text : String, sender : CommandTriggerTest ) : Responder<String>;
 	function sum( a : Int, b : Int ) : Int ;
 }
 
