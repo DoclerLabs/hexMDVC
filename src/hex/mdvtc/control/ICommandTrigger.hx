@@ -1,7 +1,6 @@
-package hex.control;
+package hex.mdvtc.control;
 
 import hex.di.IDependencyInjector;
-import hex.di.IInjectorContainer;
 import hex.module.IModule;
 
 /**

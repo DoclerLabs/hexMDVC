@@ -1,4 +1,4 @@
-package hex.control;
+package hex.mdvtc.control;
 
 import haxe.Http;
 import hex.collection.HashMap;

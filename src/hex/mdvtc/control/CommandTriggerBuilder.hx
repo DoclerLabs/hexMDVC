@@ -1,8 +1,9 @@
-package hex.control;
+package hex.mdvtc.control;
 
 import haxe.macro.Context;
 import haxe.macro.Expr.Field;
 import hex.annotation.MethodAnnotationData;
+import hex.control.ICompletable;
 import hex.control.Responder;
 import hex.error.PrivateConstructorException;
 import hex.module.IModule;
@@ -36,7 +37,7 @@ class CommandTriggerBuilder
 		var fields = Context.getBuildFields();
 		
 		//parse annotations
-		fields = hex.annotation.AnnotationReader.parseMetadata( Context.makeExpr( ICommandTrigger, Context.currentPos() ), [ MapAnnotation ], true );
+		fields = hex.annotation.AnnotationReader.parseMetadata( Context.makeExpr( ICommandTrigger, Context.currentPos() ), [ CommandTriggerBuilder.MapAnnotation ], true );
 		
 		//get data result
 		var data = hex.annotation.AnnotationReader._static_classes[ hex.annotation.AnnotationReader._static_classes.length - 1 ];
@@ -45,7 +46,7 @@ class CommandTriggerBuilder
 		var tMap : Map<String, String> = new Map();
 		for ( method in data.methods )
 		{
-			tMap.set( method.methodName, getAnnotation( method, MapAnnotation ) );
+			tMap.set( method.methodName, CommandTriggerBuilder.getAnnotation( method, MapAnnotation ) );
 		}
 
 		for ( field in fields ) 
@@ -61,7 +62,7 @@ class CommandTriggerBuilder
 	
 						if ( commandClassName != null )
 						{
-							var typePath = MacroUtil.getTypePath( commandClassName );
+							var typePath = MacroUtil.getTypePath( commandClassName, field.pos );
 							var args = [ for ( arg in func.args ) macro $i { arg.name } ];
 							
 							//get responder TypePath

@@ -1,4 +1,4 @@
-package hex.control;
+package hex.mdvtc.control;
 
 import hex.di.IDependencyInjector;
 import hex.di.IInjectorContainer;
@@ -9,7 +9,7 @@ import hex.module.IModule;
  * @author Francis Bourre
  */
 #if !macro
-@:autoBuild( hex.control.CommandTriggerBuilder.build() )
+@:autoBuild( hex.mdvtc.control.CommandTriggerBuilder.build() )
 #end
 class CommandTrigger implements ICommandTrigger implements IInjectorContainer
 {

@@ -1,5 +1,7 @@
-package hex.control;
+package hex.mdvtc.control;
 
+import hex.control.ICompletable;
+import hex.control.Responder;
 import hex.di.IDependencyInjector;
 import hex.di.InjectionEvent;
 import hex.domain.Domain;
@@ -74,10 +76,10 @@ private class MockCommandTrigger extends CommandTrigger implements IMockCommandT
 		super();
 	}
 	
-	@Map( hex.control.MockCommandClassWithoutParameters )
+	@Map( hex.mdvtc.control.MockCommandClassWithoutParameters )
 	public function print() : ICompletable<Void> { return null; }
 	
-	@Map( hex.control.MockCommandClassWithParameters )
+	@Map( hex.mdvtc.control.MockCommandClassWithParameters )
 	public function say( text : String, sender : CommandTriggerTest ) : Responder<String> { return null; }
 
 	public function sum( a : Int, b : Int ) : Int 

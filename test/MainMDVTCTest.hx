@@ -1,6 +1,6 @@
 package;
 
-import hex.HexMDVTCSuite;
+import hex.mdvtc.HexMDVTCSuite;
 import hex.unittest.runner.ExMachinaUnitCore;
 import hex.unittest.notifier.TraceNotifier;
 #if js
