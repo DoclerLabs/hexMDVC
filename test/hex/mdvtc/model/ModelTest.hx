@@ -47,16 +47,6 @@ private class MockModel implements IDispatcherOwner
     {
         //
     }
-
-    public function changeIntValue( i : Int, s : String ) : Void
-    {
-        this.intDispatcher.onChangeIntValue( i );
-    }
-	
-	public function changeStringValue( i : Int, s : String ) : Void
-    {
-        this.stringDispatcher.onChangeStringValue( s );
-    }
 	
 	public function changeAllValues( i : Int, s : String ) : Void
     {
