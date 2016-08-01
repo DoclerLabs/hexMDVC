@@ -6,7 +6,7 @@ package hex.mdvtc.model;
 #if !macro
 @:autoBuild( hex.mdvtc.model.ModelBuilder.build() )
 #end
-interface IModel 
+interface IDispatcherOwner 
 {
 
 }

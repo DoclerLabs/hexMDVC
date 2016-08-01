@@ -30,7 +30,6 @@ class ModelBuilder
 		
 		for ( f in fields )
 		{
-			
 			switch( f.kind )
 			{
 				case FVar( t, e ):
@@ -52,7 +51,7 @@ class ModelBuilder
 							var typePath 	= MacroUtil.getTypePath( className );
 							var complexType = TypeTools.toComplexType( Context.getType( className ) );
 							
-							f.kind 			= FVar( complexType, { expr: ModelBuilder.instantiate( typePath ), pos: f.pos } );
+							f.kind 			= FProp( 'default', 'never', complexType, { expr: ModelBuilder.instantiate( typePath ), pos: f.pos } );
 						}
 					}
 					

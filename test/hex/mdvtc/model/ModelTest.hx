@@ -33,7 +33,7 @@ class ModelTest
     }
 }
 
-private class MockModel implements IModel
+private class MockModel implements IDispatcherOwner
 {
     @Dispatcher
     public var intDispatcher : IIntMockListener;
