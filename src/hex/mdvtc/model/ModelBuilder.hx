@@ -24,6 +24,7 @@ class ModelBuilder
         throw new PrivateConstructorException( "This class can't be instantiated." );
     }
 	
+	//TODO make cache system
 	macro static public function build() : Array<Field> 
 	{
 		var fields = Context.getBuildFields();
@@ -32,6 +33,7 @@ class ModelBuilder
 		{
 			switch( f.kind )
 			{
+				//TODO handle properties with virtual getters/setters
 				case FVar( t, e ):
 					
 					var isDispatcher = f.meta.filter( function ( m ) { return m.name== ModelBuilder.DispatcherAnnotation; } ).length > 0;
