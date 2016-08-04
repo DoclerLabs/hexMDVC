@@ -2,7 +2,6 @@ package hex.mdvtc.control;
 
 import haxe.macro.Context;
 import haxe.macro.Expr.Field;
-import hex.annotation.MethodAnnotationData;
 import hex.control.ICompletable;
 import hex.control.Responder;
 import hex.error.PrivateConstructorException;
@@ -17,7 +16,7 @@ import hex.util.MacroUtil;
 @:final 
 class CommandTriggerBuilder
 {
-	public static inline var MapAnnotation : String = "Map";
+	public static inline var MapAnnotation = "Map";
 	
 	static var modulePack  			= MacroUtil.getPack( Type.getClassName( IModule ) );
 	static var ICompletableName 	= ClassUtil.getClassNameFromFullyQualifiedName( Type.getClassName( ICompletable ) );
@@ -36,101 +35,138 @@ class CommandTriggerBuilder
 	{
 		var fields = Context.getBuildFields();
 		
-		//parse annotations
-		fields = hex.annotation.AnnotationReader.parseMetadata( Context.makeExpr( ICommandTrigger, Context.currentPos() ), [ CommandTriggerBuilder.MapAnnotation ], true );
-		
-		//get data result
-		var data = hex.annotation.AnnotationReader._static_classes[ hex.annotation.AnnotationReader._static_classes.length - 1 ];
-		
-		//Create command class map
-		var tMap : Map<String, String> = new Map();
-		for ( method in data.methods )
+		for ( f in fields )
 		{
-			tMap.set( method.methodName, CommandTriggerBuilder.getAnnotation( method, MapAnnotation ) );
-		}
-
-		for ( field in fields ) 
-		{
-			switch ( field.kind ) 
-			{
+			switch( f.kind )
+			{ 
 				case FFun( func ) :
-				
-					var methodName  = field.name;
-					if ( tMap.exists( methodName ) )
+				{
+					var m = f.meta.filter( function ( m ) { return m.name == CommandTriggerBuilder.MapAnnotation; } );
+					var isMapped = m.length > 0;
+					
+					if ( isMapped )
 					{
-						var commandClassName : String = tMap.get( methodName );
-	
-						if ( commandClassName != null )
+						if ( m.length > 1 )
 						{
-							var typePath = MacroUtil.getTypePath( commandClassName, field.pos );
-							var args = [ for ( arg in func.args ) macro $i { arg.name } ];
-							
-							//get responder TypePath
-							var responderTypePath = switch ( func.ret )
+							Context.fatalError( "'" + Context.getLocalClass().get().name + "." + f.name + "' defines command mapping with '@" + CommandTriggerBuilder.MapAnnotation + "' more than once", f.pos );
+						}
+						
+						var meta = m[ 0 ];
+						f.meta.remove( meta );
+						
+						var commandName : String = null;
+						
+						for ( param in meta.params )
+						{
+							switch( param.expr )
 							{
-								case TPath( p ): 
-										
-										if ( p.name != ICompletableName )
-										{
-											var returnType = Context.getType( p.name );
+								case EConst( c ):
+									switch ( c )
+									{
+										case CIdent( v ):
+											commandName = hex.util.MacroUtil.getClassNameFromExpr( param );
+
+										case _: 
+									}
+									
+								case EField( e, field ):
+									commandName = ( haxe.macro.ExprTools.toString( e ) + "." + field );
+
+								case _: 
+							}
+						}
+						
+						if ( commandName == null )
+						{
+							Context.fatalError( "Invalid class name mapping passed to '" + Context.getLocalClass().get().name + "." + f.name + "' method.", f.pos );
+						}
+
+						//
+						var argumentDatas : Array<{name:String, type:String}> = [];
+						for ( arg in func.args )
+						{
+							switch ( arg.type )
+							{
+								case TPath( p ):
+									var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
+									var argumentType : String = "";
+									
+									switch ( t )
+									{
+										case TInst( t, p ):
+											var ct = t.get();
+											argumentType = ct.pack.concat( [ct.name] ).join( '.' );
 											
-											if ( !MacroUtil.implementsInterface( MacroUtil.getClassType( p.name ), ICompletableClassType ) )
-											{
-												Context.error( "returned type '" + p.name 
-													+ "' doesn't implement '"
-													+ ICompletableClassType
-													+ "' interface in method named '" 
-													+ methodName + "'", field.pos );
-											}
-											else
-											{
-												switch( returnType ) 
-												{ 
-													case TInst( t, s ): 
-														MacroUtil.getTypePath( '' + t );
-														
-													default: 
-														MacroUtil.getTypePath( Type.getClassName( Responder ) );
-												}
-											}
+										case TAbstract( t, params ):
+											argumentType = t.toString();
+											
+										case TDynamic( t ):
+											argumentType = "Dynamic";
+											
+										default:
+									}
+
+									argumentDatas.push( { name: arg.name, type: argumentType } );
+
+								default:
+							}
+						}
+
+						var responderTypePath = switch ( func.ret )
+						{
+							case TPath( p ): 
+									
+									if ( p.name != ICompletableName )
+									{
+										var returnType = Context.getType( p.name );
+										
+										if ( !MacroUtil.implementsInterface( MacroUtil.getClassType( p.name ), ICompletableClassType ) )
+										{
+											Context.error( "returned type '" + p.name 
+												+ "' doesn't implement '"
+												+ ICompletableClassType
+												+ "' interface in method named '" 
+												+ f.name + "'", f.pos );
 										}
 										else
 										{
-											MacroUtil.getTypePath( Type.getClassName( Responder ) );
+											switch( returnType ) 
+											{ 
+												case TInst( t, s ): 
+													MacroUtil.getTypePath( '' + t );
+													
+												default: 
+													MacroUtil.getTypePath( Type.getClassName( Responder ) );
+											}
 										}
-										
-								default: null;
-							}
-
-							func.expr = macro 
-							{
-								var command = new $typePath();
-								this.injector.injectInto( command );
-								command.setOwner( this.injector.getInstance( $p { modulePack } ) );
-	
-								Reflect.callMethod( command, Reflect.field( command, command.executeMethodName ), $a { args } );
-								return new $responderTypePath( command );
-							};
+									}
+									else
+									{
+										MacroUtil.getTypePath( Type.getClassName( Responder ) );
+									}
+									
+							default: null;
 						}
+						
+						var typePath = MacroUtil.getTypePath( commandName, f.pos );
+						var args = [ for ( arg in argumentDatas ) macro $i { arg.name } ];
+						
+						func.expr = macro 
+						{
+							var command = new $typePath();
+							this.injector.injectInto( command );
+							command.setOwner( this.injector.getInstance( $p { modulePack } ) );
+
+							Reflect.callMethod( command, Reflect.field( command, command.executeMethodName ), $a { args } );
+							return new $responderTypePath( command );
+						};
 					}
-					
-				default : 
+				}
+				
+				case _:
 			}
 		}
-
+		
 		return fields;
-	}
-
-	static function getAnnotation( method : MethodAnnotationData, annotationName : String )
-	{
-		var meta = method.annotationDatas.filter( function ( v ) { return v.annotationName == annotationName; } );
-		if ( meta.length > 0 )
-		{
-			return meta[ 0 ].annotationKeys[ 0 ];
-		}
-		else
-		{
-			return null;
-		}
 	}
 }
