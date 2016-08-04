@@ -1,5 +1,7 @@
 package hex.mdvtc.control;
+import haxe.macro.Expr.Position;
 
+#if macro
 import haxe.macro.Context;
 import haxe.macro.Expr.Field;
 import hex.control.ICompletable;
@@ -8,6 +10,7 @@ import hex.error.PrivateConstructorException;
 import hex.module.IModule;
 import hex.util.ClassUtil;
 import hex.util.MacroUtil;
+#end
 
 /**
  * ...
@@ -18,11 +21,11 @@ class CommandTriggerBuilder
 {
 	public static inline var MapAnnotation = "Map";
 	
-	static var modulePack  			= MacroUtil.getPack( Type.getClassName( IModule ) );
-	static var ICompletableName 	= ClassUtil.getClassNameFromFullyQualifiedName( Type.getClassName( ICompletable ) );
-	
 	#if macro
-	static var ICompletableClassType = MacroUtil.getClassType( Type.getClassName( ICompletable ) );
+	static var modulePack  				= MacroUtil.getPack( Type.getClassName( IModule ) );
+	static var ICompletableName 		= ClassUtil.getClassNameFromFullyQualifiedName( Type.getClassName( ICompletable ) );
+	static var CommandClassType 		= MacroUtil.getClassType( Type.getClassName( Command ) );
+	static var ICompletableClassType 	= MacroUtil.getClassType( Type.getClassName( ICompletable ) );
 	#end
 	
 	/** @private */
@@ -46,15 +49,18 @@ class CommandTriggerBuilder
 					
 					if ( isMapped )
 					{
+						var className = Context.getLocalModule();
+						
 						if ( m.length > 1 )
 						{
-							Context.fatalError( "'" + Context.getLocalClass().get().name + "." + f.name + "' defines command mapping with '@" + CommandTriggerBuilder.MapAnnotation + "' more than once", f.pos );
+							Context.fatalError(  	"'" + f.name + "' method defines more than one command mapping (with '@" + 
+													CommandTriggerBuilder.MapAnnotation + "' annotation) in '" + className + "' class", m[ 1 ].pos );
 						}
 						
 						var meta = m[ 0 ];
 						f.meta.remove( meta );
 						
-						var commandName : String = null;
+						var command : { name: String, pos: Position } = { name: null, pos: meta.pos };
 						
 						for ( param in meta.params )
 						{
@@ -64,21 +70,42 @@ class CommandTriggerBuilder
 									switch ( c )
 									{
 										case CIdent( v ):
-											commandName = hex.util.MacroUtil.getClassNameFromExpr( param );
+											try
+											{
+												command.name = hex.util.MacroUtil.getClassNameFromExpr( param );
+											}
+											catch ( e : Dynamic )
+											{
+												Context.fatalError( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
+													"' annotation) to '" + f.name + "' method in '" + className + "' class", param.pos );
+											}
+											
+											command.pos = param.pos;
 
 										case _: 
 									}
 									
 								case EField( e, field ):
-									commandName = ( haxe.macro.ExprTools.toString( e ) + "." + field );
+									command.name = ( haxe.macro.ExprTools.toString( e ) + "." + field );
+									command.pos = param.pos;
 
 								case _: 
 							}
 						}
 						
-						if ( commandName == null )
+						if ( command.name == null )
 						{
-							Context.fatalError( "Invalid class name mapping passed to '" + Context.getLocalClass().get().name + "." + f.name + "' method.", f.pos );
+							Context.fatalError( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
+								"' annotation) to '" + f.name + "' method in '" + className + "' class", command.pos );
+						}
+						
+
+						var typePath = MacroUtil.getTypePath( command.name, command.pos );
+
+						if ( !MacroUtil.isSubClassOf( MacroUtil.getClassType( command.name ), CommandClassType ) )
+						{
+							Context.fatalError( "'" + className + "' is mapped as a command class (with '@" + CommandTriggerBuilder.MapAnnotation + 
+								"' annotation), but it doesn't extend '" + CommandClassType.module + "' class", command.pos );
 						}
 
 						//
@@ -88,6 +115,7 @@ class CommandTriggerBuilder
 							switch ( arg.type )
 							{
 								case TPath( p ):
+									
 									var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
 									var argumentType : String = "";
 									
@@ -122,11 +150,7 @@ class CommandTriggerBuilder
 										
 										if ( !MacroUtil.implementsInterface( MacroUtil.getClassType( p.name ), ICompletableClassType ) )
 										{
-											Context.error( "returned type '" + p.name 
-												+ "' doesn't implement '"
-												+ ICompletableClassType
-												+ "' interface in method named '" 
-												+ f.name + "'", f.pos );
+											Context.fatalError( "returned type '" + p.name + "' doesn't implement '" + ICompletableClassType.module + "' interface", f.pos );
 										}
 										else
 										{
@@ -148,7 +172,6 @@ class CommandTriggerBuilder
 							default: null;
 						}
 						
-						var typePath = MacroUtil.getTypePath( commandName, f.pos );
 						var args = [ for ( arg in argumentDatas ) macro $i { arg.name } ];
 						
 						func.expr = macro 
@@ -156,7 +179,6 @@ class CommandTriggerBuilder
 							var command = new $typePath();
 							this.injector.injectInto( command );
 							command.setOwner( this.injector.getInstance( $p { modulePack } ) );
-
 							Reflect.callMethod( command, Reflect.field( command, command.executeMethodName ), $a { args } );
 							return new $responderTypePath( command );
 						};
