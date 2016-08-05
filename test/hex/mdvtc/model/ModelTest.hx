@@ -19,8 +19,8 @@ class ModelTest
 		
 		Assert.isInstanceOf( model.size, Size, "property that is not annotated should kept its initial type and value" );
 		
-		model.intDispatcher.addListener( intMockDriver );
-		model.stringDispatcher.addListener( stringMockDriver );
+		model.intOutput.connect( intMockDriver );
+		model.stringOutput.connect( stringMockDriver );
 		
 		IntMockDriver.reset();
 		StringMockDriver.reset();
@@ -33,13 +33,13 @@ class ModelTest
     }
 }
 
-private class MockModel implements IDispatcherOwner
+private class MockModel implements IOutputOwner
 {
-    @Dispatcher
-    public var intDispatcher : IIntMockListener;
+    @Output
+    public var intOutput : IIntMockInput;
 	
-	@Dispatcher
-    public var stringDispatcher : IStringMockListener;
+	@Output
+    public var stringOutput : IStringMockInput;
 	
 	public var size : Size = new Size( 10, 20 );
 
@@ -50,12 +50,12 @@ private class MockModel implements IDispatcherOwner
 	
 	public function changeAllValues( i : Int, s : String ) : Void
     {
-        this.intDispatcher.onChangeIntValue( i );
-        this.stringDispatcher.onChangeStringValue( s );
+        this.intOutput.onChangeIntValue( i );
+        this.stringOutput.onChangeStringValue( s );
     }
 }
 
-private class IntMockDriver implements IIntMockListener
+private class IntMockDriver implements IIntMockInput
 {
 	public static var callbackCallCount : Int = 0;
 	public static var callbackParam 	: Int = 0;
@@ -78,7 +78,7 @@ private class IntMockDriver implements IIntMockListener
 	}
 }
 
-private class StringMockDriver implements IStringMockListener
+private class StringMockDriver implements IStringMockInput
 {
 	public static var callbackCallCount : Int 		= 0;
 	public static var callbackParam 	: String 	= null;

@@ -16,7 +16,7 @@ using haxe.macro.Context;
 @:final 
 class ModelBuilder
 {
-	public static inline var DispatcherAnnotation : String = "Dispatcher";
+	public static inline var OutputAnnotation = "Output";
 	
 	/** @private */
     function new()
@@ -32,11 +32,11 @@ class ModelBuilder
 		for ( f in fields )
 		{
 			switch( f.kind )
-			{
+			{ 
 				//TODO handle properties with virtual getters/setters
 				case FVar( t, e ):
 					
-					var isDispatcher = f.meta.filter( function ( m ) { return m.name== ModelBuilder.DispatcherAnnotation; } ).length > 0;
+					var isDispatcher = f.meta.filter( function ( m ) { return m.name== ModelBuilder.OutputAnnotation; } ).length > 0;
 					if ( isDispatcher ) 
 					{
 						var interfaceName 			= ModelBuilder.getClassName( f );
@@ -44,7 +44,7 @@ class ModelBuilder
 						
 						if ( !interfaceToImplement.isInterface )
 						{
-							Context.error( "'" + f.name + "' property with '@" + ModelBuilder.DispatcherAnnotation + "' annotation should have interface type. No class is allowed.", f.pos );
+							Context.error( "'" + f.name + "' property with '@" + ModelBuilder.OutputAnnotation + "' annotation should have interface type. No class is allowed.", f.pos );
 						}
 						else
 						{
@@ -66,25 +66,32 @@ class ModelBuilder
 	
 	static function buildClass( interfaceName : { name: String, pack: Array<String>, fullyQualifiedName: String } ) 
 	{
-		var className 	= "__" + ModelBuilder.DispatcherAnnotation + '_Class_For__' + interfaceName.name;
+		var className 	= "__" + ModelBuilder.OutputAnnotation + '_Class_For__' + interfaceName.name;
 		var typePath 	= MacroUtil.getTypePath( interfaceName.fullyQualifiedName );
 		var type 		= Context.getType( interfaceName.fullyQualifiedName );
 		var complexType = TypeTools.toComplexType( type );
 		
-		var dispatcherClass = macro class $className implements $typePath
+		var params = [ TPType( complexType ) ];
+		var connectorTypePath = MacroUtil.getTypePath( Type.getClassName( IOutput ), params );
+		
+		
+		//var params2 = [ TPType( TypeTools.toComplexType( Context.getType( '' ) ) ) ];
+		//var connectorTypePath = MacroUtil.getTypePath( Type.getClassName( IOutput ), params );
+
+		var dispatcherClass = macro class $className /*implements $typePath*/ implements $connectorTypePath
 		{ 
-			var _listeners : Array<$complexType>;
+			var _inputs : Array<$complexType>;
 	
 			public function new() 
 			{
-				this._listeners = [];
+				this._inputs = [];
 			}
 
-			public function addListener( listener : $complexType ) : Bool
+			public function connect( input : $complexType ) : Bool
 			{
-				if ( this._listeners.indexOf( listener ) == -1 )
+				if ( this._inputs.indexOf( input ) == -1 )
 				{
-					this._listeners.push( listener );
+					this._inputs.push( input );
 					return true;
 				}
 				else
@@ -93,13 +100,13 @@ class ModelBuilder
 				}
 			}
 
-			public function removeListener( listener : $complexType ) : Bool
+			public function disconnect( input : $complexType ) : Bool
 			{
-				var index : Int = this._listeners.indexOf( listener );
+				var index : Int = this._inputs.indexOf( input );
 				
 				if ( index > -1 )
 				{
-					this._listeners.splice( index, 1 );
+					this._inputs.splice( index, 1 );
 					return true;
 				}
 				else
@@ -157,7 +164,7 @@ class ModelBuilder
 							var body = 
 							macro 
 							{
-								for ( listener in this._listeners ) listener.$methodName( $a{ methArgs } );
+								for ( input in this._inputs ) input.$methodName( $a{ methArgs } );
 							};
 							
 							
@@ -179,6 +186,15 @@ class ModelBuilder
 		}
 
 		dispatcherClass.pack = interfaceName.pack.copy();
+		
+		switch( dispatcherClass.kind )
+		{
+			case TDClass( a, params ):
+				params.push( typePath );
+				
+			case _:
+		}
+		
 		Context.defineType( dispatcherClass );
 		
 		return { name: dispatcherClass.name, pack: dispatcherClass.pack };

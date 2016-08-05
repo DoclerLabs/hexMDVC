@@ -4,7 +4,7 @@ package hex.mdvtc.model;
  * ...
  * @author Francis Bourre
  */
-interface IStringMockListener
+interface IStringMockInput
 {
 	function onChangeStringValue( value : String ) : Void;
 }
