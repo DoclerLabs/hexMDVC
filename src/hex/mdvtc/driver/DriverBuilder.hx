@@ -105,6 +105,7 @@ class DriverBuilder
 		switch ( f.kind )
 		{
 			case FVar( TPath( p ), e ):
+
 				ct = TPath( p );
 				connectionInterfaceName = DriverBuilder._getConnectionInterfaceName( p.params );
 
@@ -161,39 +162,11 @@ class DriverBuilder
 	{
 		return ENew( t, args == null ? [] : args );
 	}
-	
-	//static public inline function instantiate(s:String, ?args:Array<Expr>, ?params:Array<TypeParam>, ?pos:Position) 
-    //return s.asTypePath(params).instantiate(args, pos);
-	
-	static public function asTypePath( s : String, ?params : Array<TypeParam> ) : TypePath 
-	{
-		var parts = s.split('.');
-		var name = parts.pop(),
-		sub = null;
-		
-		if ( parts.length > 0 && parts[ parts.length - 1 ].charCodeAt( 0 ) < 0x5B ) 
-		{
-			sub = name;
-			name = parts.pop();
-			if (sub == name) 
-			{
-				sub = null;
-			}
-		}
-		
-		return 
-		{
-			name: name,
-			pack: parts,
-			params: params == null ? [] : params,
-			sub: sub
-		};
-	}
 }
 
 private typedef InputVO = 
 {
-	expr: {pos:Position, expr:ExprDef},
+	expr: { pos:Position, expr:ExprDef },
 	propertyName: String,
 	pos: Position
 }

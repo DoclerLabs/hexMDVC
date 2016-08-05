@@ -4,7 +4,7 @@ package hex.mdvtc.model;
  * ...
  * @author Francis Bourre
  */
-interface IIntMockInput
+interface IIntConnection
 {
 	function onChangeIntValue( i : Int ) : Void;
 }

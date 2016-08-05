@@ -44,7 +44,9 @@ class ModelBuilder
 						
 						if ( !outputType.isInterface )
 						{
-							Context.error( "'" + f.name + "' property with '@" + ModelBuilder.OutputAnnotation + "' annotation should have interface type. No class is allowed.", f.pos );
+							Context.fatalError( "'<" + outputDefinition.fullyQualifiedName + 
+								">' should be an interface. No class is allowed for property's type parameter with '@" 
+									+ ModelBuilder.OutputAnnotation + "' annotation", f.pos );
 						}
 						else
 						{
@@ -74,11 +76,7 @@ class ModelBuilder
 		var params = [ TPType( complexType ) ];
 		var connectorTypePath = MacroUtil.getTypePath( Type.getClassName( IOutput ), params );
 		
-		
-		//var params2 = [ TPType( TypeTools.toComplexType( Context.getType( '' ) ) ) ];
-		//var connectorTypePath = MacroUtil.getTypePath( Type.getClassName( IOutput ), params );
-
-		var dispatcherClass = macro class $className /*implements $typePath*/ implements $connectorTypePath
+		var dispatcherClass = macro class $className implements $connectorTypePath
 		{ 
 			var _inputs : Array<$complexType>;
 	
@@ -202,12 +200,14 @@ class ModelBuilder
 	
 	static function _getOutputDefinition( f ) : { name: String, pack: Array<String>, fullyQualifiedName: String }
 	{
-		var name : String 			= "";
-		var pack : Array<String> 	= [];
+		var name 					: String 			= "";
+		var connectionDefinition 	: { name: String, pack: Array<String>, fullyQualifiedName: String } = null;
 		
 		switch ( f.kind )
 		{
 			case FVar( TPath( p ), e ):
+				
+				connectionDefinition = ModelBuilder._getConnectionDefinition( p.params );
 				
 				var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
 				
@@ -215,15 +215,55 @@ class ModelBuilder
 				{
 					case TInst( t, p ):
 						var ct = t.get();
-						name = ct.name;
-						pack = ct.pack;
-						
+						name = ct.pack.concat( [ ct.name ] ).join( '.' );
+
 					case _:
 				}
+
 			case _:
 		}
 		
-		return { name : name, pack: pack, fullyQualifiedName: pack.concat( [ name ] ).join( '.' ) };
+		var tpName = connectionDefinition.fullyQualifiedName;
+		if ( name != Type.getClassName( IOutput ) )
+		{
+			Context.fatalError( "'" + f.name + "' property with '@" + ModelBuilder.OutputAnnotation 
+				+ "' annotation should be typed '" + Type.getClassName( IOutput ) + "<" + tpName 
+				+ ">' instead of '" + name + "<" + tpName + ">'", f.pos );
+		}
+		
+		return connectionDefinition;
+	}
+	
+	static function _getConnectionDefinition( params : Array<TypeParam> ) : { name: String, pack: Array<String>, fullyQualifiedName: String }
+	{
+		for ( param in params )
+		{
+			switch( param )
+			{
+				case TPType( tp ) :
+
+					switch( tp )
+					{
+						case TPath( p ):
+							var t = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
+							switch ( t )
+							{
+								case TInst( t, p ):
+									var ct = t.get();
+									return { name: ct.name, pack: ct.pack, fullyQualifiedName: ct.pack.concat( [ ct.name ] ).join( '.' ) };
+									
+								case _:
+							}
+							
+						case _:
+					}
+					
+				case _:
+				
+			}
+		}
+		
+		return null;
 	}
 	
 	static inline function _instantiate( t : TypePath, ?args ) : ExprDef

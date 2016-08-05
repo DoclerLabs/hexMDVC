@@ -7,7 +7,6 @@ import hex.unittest.assertion.Assert;
  * ...
  * @author Francis Bourre
  */
-@TestMacro
 class ModelTest
 {
 	@Test( "test dispatchers instantiation and callbacks" )
@@ -36,10 +35,10 @@ class ModelTest
 private class MockModel implements IOutputOwner
 {
     @Output
-    public var intOutput : IIntMockInput;
+    public var intOutput : IOutput<IIntConnection>;
 	
 	@Output
-    public var stringOutput : IStringMockInput;
+    public var stringOutput : IOutput<IStringConnection>;
 	
 	public var size : Size = new Size( 10, 20 );
 
@@ -55,7 +54,7 @@ private class MockModel implements IOutputOwner
     }
 }
 
-private class IntMockDriver implements IIntMockInput
+private class IntMockDriver implements IIntConnection
 {
 	public static var callbackCallCount : Int = 0;
 	public static var callbackParam 	: Int = 0;
@@ -78,7 +77,7 @@ private class IntMockDriver implements IIntMockInput
 	}
 }
 
-private class StringMockDriver implements IStringMockInput
+private class StringMockDriver implements IStringConnection
 {
 	public static var callbackCallCount : Int 		= 0;
 	public static var callbackParam 	: String 	= null;
