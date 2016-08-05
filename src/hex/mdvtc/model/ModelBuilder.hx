@@ -187,8 +187,8 @@ class ModelBuilder
 		
 		switch( dispatcherClass.kind )
 		{
-			case TDClass( a, params ):
-				params.push( typePath );
+			case TDClass( superClass, interfaces, isInterface ):
+				interfaces.push( typePath );
 				
 			case _:
 		}
