@@ -39,21 +39,21 @@ class ModelBuilder
 					var isDispatcher = f.meta.filter( function ( m ) { return m.name== ModelBuilder.OutputAnnotation; } ).length > 0;
 					if ( isDispatcher ) 
 					{
-						var interfaceName 			= ModelBuilder.getClassName( f );
-						var interfaceToImplement 	= MacroUtil.getClassType( interfaceName.fullyQualifiedName );
+						var outputDefinition 	= ModelBuilder._getOutputDefinition( f );
+						var outputType 			= MacroUtil.getClassType( outputDefinition.fullyQualifiedName );
 						
-						if ( !interfaceToImplement.isInterface )
+						if ( !outputType.isInterface )
 						{
 							Context.error( "'" + f.name + "' property with '@" + ModelBuilder.OutputAnnotation + "' annotation should have interface type. No class is allowed.", f.pos );
 						}
 						else
 						{
-							var e 			= ModelBuilder.buildClass( interfaceName );
+							var e 			= ModelBuilder._buildClass( outputDefinition );
 							var className 	= e.pack.join( '.' ) + '.' + e.name;
 							var typePath 	= MacroUtil.getTypePath( className );
 							var complexType = TypeTools.toComplexType( Context.getType( className ) );
 							
-							f.kind 			= FProp( 'default', 'never', complexType, { expr: ModelBuilder.instantiate( typePath ), pos: f.pos } );
+							f.kind 			= FProp( 'default', 'never', complexType, { expr: ModelBuilder._instantiate( typePath ), pos: f.pos } );
 						}
 					}
 					
@@ -64,7 +64,7 @@ class ModelBuilder
         return fields;
     }
 	
-	static function buildClass( interfaceName : { name: String, pack: Array<String>, fullyQualifiedName: String } ) 
+	static function _buildClass( interfaceName : { name: String, pack: Array<String>, fullyQualifiedName: String } ) : { name: String, pack: Array<String> }
 	{
 		var className 	= "__" + ModelBuilder.OutputAnnotation + '_Class_For__' + interfaceName.name;
 		var typePath 	= MacroUtil.getTypePath( interfaceName.fullyQualifiedName );
@@ -200,7 +200,7 @@ class ModelBuilder
 		return { name: dispatcherClass.name, pack: dispatcherClass.pack };
 	}
 	
-	static function getClassName( f ) : { name: String, pack: Array<String>, fullyQualifiedName: String }
+	static function _getOutputDefinition( f ) : { name: String, pack: Array<String>, fullyQualifiedName: String }
 	{
 		var name : String 			= "";
 		var pack : Array<String> 	= [];
@@ -226,7 +226,7 @@ class ModelBuilder
 		return { name : name, pack: pack, fullyQualifiedName: pack.concat( [ name ] ).join( '.' ) };
 	}
 	
-	static public inline function instantiate( t : TypePath, ?args )
+	static inline function _instantiate( t : TypePath, ?args ) : ExprDef
 	{
 		return ENew( t, args == null ? [] : args );
 	}
