@@ -15,19 +15,6 @@ using haxe.macro.Context;
 class DriverBuilder
 {
 	public static inline var InputAnnotation = "Input";
-	static var _thisInput = _getThisInput();
-	
-	static function _getThisInput()
-	{
-		var i = macro { this.input; };
-		switch( i.expr ) 
-		{ 
-			case EBlock( exprs ): 
-				return exprs[ 0 ]; 
-				
-			case _: return null; 
-		};
-	}
 	
 	/** @private */
     function new()
@@ -68,7 +55,8 @@ class DriverBuilder
 							var connectionComplexType 	= TypeTools.toComplexType( connectionType );
 							var inputTypePath 			= MacroUtil.getTypePath( Type.getClassName( Input ), [ TPType( connectionComplexType ) ] );
 	
-							inputVOList.push( { expr: { expr: DriverBuilder._instantiate( inputTypePath, [macro this] ), pos: f.pos }, propertyName: f.name, pos: f.pos } );
+							//TODO check class implements inputDefinition.connectionInterfaceName
+							inputVOList.push( { expr: { expr: DriverBuilder._instantiate( inputTypePath, [macro this] ), pos: f.pos }, fieldName: f.name, pos: f.pos } );
 						}
 					}
 				
@@ -81,7 +69,7 @@ class DriverBuilder
 							case EBlock( exprs ):
 								for ( vo in inputVOList )
 								{
-									exprs.insert( 0, { expr: EBinop( OpAssign, _thisInput, vo.expr ), pos: vo.pos } );
+									exprs.insert( 0, { expr: EBinop( OpAssign, _getFieldReference( vo.fieldName ), vo.expr ), pos: vo.pos } );
 								}
 
 							case _:
@@ -93,6 +81,18 @@ class DriverBuilder
 		}
 		
 		return fields;
+	}
+	
+	static function _getFieldReference( fieldName : String )
+	{
+		var i = macro { this.$fieldName; };
+		switch( i.expr ) 
+		{ 
+			case EBlock( exprs ): 
+				return exprs[ 0 ]; 
+				
+			case _: return null; 
+		};
 	}
 	
 	static function _getInputDefinition( f ) : { name: String, pack: Array<String>, fullyQualifiedName: String, connectionInterfaceName: String, ct:ComplexType }
@@ -167,6 +167,6 @@ class DriverBuilder
 private typedef InputVO = 
 {
 	expr: { pos:Position, expr:ExprDef },
-	propertyName: String,
+	fieldName: String,
 	pos: Position
 }

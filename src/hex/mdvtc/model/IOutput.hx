@@ -3,8 +3,8 @@ package hex.mdvtc.model;
 /**
  * @author Francis Bourre
  */
-interface IOutput<I> 
+interface IOutput<Connection> 
 {
-	function connect( input : I ) : Bool;
-	function disconnect( input : I ) : Bool;
+	function connect( input : Connection ) : Bool;
+	function disconnect( input : Connection ) : Bool;
 }

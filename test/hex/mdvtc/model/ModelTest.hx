@@ -9,8 +9,8 @@ import hex.unittest.assertion.Assert;
  */
 class ModelTest
 {
-	@Test( "test dispatchers instantiation and callbacks" )
-    public function testDispatcherInstantiationAndCallbacks() : Void
+	@Test( "test output instantiation and callbacks" )
+    public function testOutputInstantiationAndCallbacks() : Void
     {
 		var model 				= new MockModel();
 		var intMockDriver 		= new IntMockDriver();

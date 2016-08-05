@@ -5,9 +5,9 @@ import hex.mdvtc.model.IOutput;
 /**
  * @author Francis Bourre
  */
-interface IInput<T> 
+interface IInput<Connection> 
 {
 	function switchOn() : Void;
 	function switchOff() : Void;
-	function plug( output : IOutput<T>, switchOn : Bool = true ) : Void;
+	function plug( output : IOutput<Connection>, switchOn : Bool = true ) : Void;
 }

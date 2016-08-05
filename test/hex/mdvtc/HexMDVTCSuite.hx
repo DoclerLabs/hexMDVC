@@ -1,6 +1,7 @@
 package hex.mdvtc;
 
 import hex.mdvtc.control.MDVTCControlSuite;
+import hex.mdvtc.driver.MDVTCDriverSuite;
 import hex.mdvtc.model.MDVTCModelSuite;
 import hex.mdvtc.view.MDVTCViewSuite;
 
@@ -11,5 +12,5 @@ import hex.mdvtc.view.MDVTCViewSuite;
 class HexMDVTCSuite
 {
 	@Suite( "HexMDVTC" )
-    public var list : Array<Class<Dynamic>> = [ MDVTCControlSuite, MDVTCModelSuite, MDVTCViewSuite ];
+    public var list : Array<Class<Dynamic>> = [ MDVTCControlSuite, MDVTCDriverSuite, MDVTCModelSuite, MDVTCViewSuite ];
 }

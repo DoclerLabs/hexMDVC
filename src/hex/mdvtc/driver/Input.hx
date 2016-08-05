@@ -6,12 +6,12 @@ import hex.mdvtc.model.IOutput;
  * ...
  * @author Francis Bourre
  */
-class Input<T> implements IInput<T>
+class Input<Connection> implements IInput<Connection>
 {
-	private var _driver : T;
-	private var _output : IOutput<T>;
+	private var _driver : Connection;
+	private var _output : IOutput<Connection>;
 	
-	public function new( driver : T ) 
+	public function new( driver : Connection ) 
 	{
 		this._driver = driver;
 	}
@@ -26,7 +26,7 @@ class Input<T> implements IInput<T>
 		this._output.disconnect( this._driver );
 	}
 	
-	public function plug( output : IOutput<T>, switchOn : Bool = true ) : Void
+	public function plug( output : IOutput<Connection>, switchOn : Bool = true ) : Void
 	{
 		if ( this._output != null )
 		{
