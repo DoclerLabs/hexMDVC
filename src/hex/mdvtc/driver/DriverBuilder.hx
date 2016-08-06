@@ -12,6 +12,7 @@ using haxe.macro.Context;
  * ...
  * @author Francis Bourre
  */
+@:final 
 class DriverBuilder
 {
 	public static inline var InputAnnotation = "Input";
@@ -56,7 +57,7 @@ class DriverBuilder
 							var inputTypePath 			= MacroUtil.getTypePath( Type.getClassName( Input ), [ TPType( connectionComplexType ) ] );
 	
 							//TODO check class implements inputDefinition.connectionInterfaceName
-							inputVOList.push( { expr: { expr: DriverBuilder._instantiate( inputTypePath, [macro this] ), pos: f.pos }, fieldName: f.name, pos: f.pos } );
+							inputVOList.push( { expr: { expr: MacroUtil.instantiate( inputTypePath, [macro this] ), pos: f.pos }, fieldName: f.name, pos: f.pos } );
 						}
 					}
 				
@@ -156,11 +157,6 @@ class DriverBuilder
 		}
 		
 		return null;
-	}
-	
-	static inline function _instantiate( t : TypePath, ?args )
-	{
-		return ENew( t, args == null ? [] : args );
 	}
 }
 

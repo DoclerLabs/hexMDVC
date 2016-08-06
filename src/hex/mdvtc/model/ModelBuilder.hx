@@ -31,14 +31,14 @@ class ModelBuilder
 		
 		for ( f in fields )
 		{
-			switch( f.kind )
-			{ 
-				//TODO handle properties with virtual getters/setters
-				case FVar( t, e ):
-					
-					var isDispatcher = f.meta.filter( function ( m ) { return m.name== ModelBuilder.OutputAnnotation; } ).length > 0;
-					if ( isDispatcher ) 
-					{
+			var isDispatcher = f.meta.filter( function ( m ) { return m.name== ModelBuilder.OutputAnnotation; } ).length > 0;
+			if ( isDispatcher ) 
+			{
+				switch( f.kind )
+				{ 
+					//TODO handle properties with virtual getters/setters
+					case FVar( t, e ):
+						
 						var outputDefinition 	= ModelBuilder._getOutputDefinition( f );
 						var outputType 			= MacroUtil.getClassType( outputDefinition.fullyQualifiedName );
 						
@@ -55,11 +55,11 @@ class ModelBuilder
 							var typePath 	= MacroUtil.getTypePath( className );
 							var complexType = TypeTools.toComplexType( Context.getType( className ) );
 							
-							f.kind 			= FProp( 'default', 'never', complexType, { expr: ModelBuilder._instantiate( typePath ), pos: f.pos } );
+							f.kind 			= FProp( 'default', 'never', complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } );
 						}
-					}
-					
-				case _:
+						
+					case _:
+				}
 			}
 		}
 
@@ -264,10 +264,5 @@ class ModelBuilder
 		}
 		
 		return null;
-	}
-	
-	static inline function _instantiate( t : TypePath, ?args ) : ExprDef
-	{
-		return ENew( t, args == null ? [] : args );
 	}
 }
