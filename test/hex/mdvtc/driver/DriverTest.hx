@@ -34,13 +34,13 @@ class DriverTest
 		Assert.isInstanceOf( mockDriver.stringInput, Input, "property that is annotated should be an instance of 'Input'" );
     }
 	
-	@Test( "test plug call" )
-    public function testPlugCall() : Void
+	@Test( "test plug and switch methods" )
+    public function testPlugAndSwitchMethods() : Void
     {
 		var mockDriver = new MockDriver();
 		MockDriver.reset();
 		
-		//
+		//intInput
 		var mockIntOutput = new MockIntOutput();
 		
 		mockDriver.intInput.plug( mockIntOutput );
@@ -55,7 +55,7 @@ class DriverTest
 		Assert.equals( mockDriver, mockIntOutput.lastDriverDisconnected, "driver should be disconnected to output after 'switchOff' method called" );
 		Assert.isNull( mockIntOutput.lastDriverConnected, "driver should not be connected after 'switchOff' method called" );
 		
-		//
+		//stringInput
 		var mockStringOutput = new MockStringOutput();
 		
 		mockDriver.stringInput.plug( mockStringOutput, false );

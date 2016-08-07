@@ -2,6 +2,7 @@ package hex.mdvtc.driver;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Type.ClassType;
 import haxe.macro.TypeTools;
 import hex.error.PrivateConstructorException;
 import hex.util.MacroUtil;
@@ -29,6 +30,13 @@ class DriverBuilder
 		var fields = Context.getBuildFields();
 		var inputVOList : Array<InputVO> = [];
 		
+		var interfaces = Context.getLocalClass().get().interfaces;
+		var implementedModuleNames : Array<String> = [];
+		for ( i in interfaces )
+		{
+			implementedModuleNames.push( i.t.get().module );
+		}
+		
 		for ( f in fields )
 		{
 			switch( f.kind )
@@ -52,11 +60,18 @@ class DriverBuilder
 							var typePath 				= MacroUtil.getTypePath( className );
 							var complexType 			= TypeTools.toComplexType( Context.getType( className ) );
 
+							var classType				= MacroUtil.getClassType( inputDefinition.connectionInterfaceName );
+							if ( implementedModuleNames.indexOf( classType.module ) == -1 )
+							{
+								Context.fatalError( "'" + Context.getLocalClass().get().name + "' does not implement '" 
+													+ inputDefinition.connectionInterfaceName + "' and have '@" 
+													+ DriverBuilder.InputAnnotation + "' annotation typed '"
+													+ className + "<" + inputDefinition.connectionInterfaceName + ">'", f.pos );
+							}
+							
 							var connectionType 			= Context.getType( inputDefinition.connectionInterfaceName );
 							var connectionComplexType 	= TypeTools.toComplexType( connectionType );
 							var inputTypePath 			= MacroUtil.getTypePath( Type.getClassName( Input ), [ TPType( connectionComplexType ) ] );
-	
-							//TODO check class implements inputDefinition.connectionInterfaceName
 							inputVOList.push( { expr: { expr: MacroUtil.instantiate( inputTypePath, [macro this] ), pos: f.pos }, fieldName: f.name, pos: f.pos } );
 						}
 					}
