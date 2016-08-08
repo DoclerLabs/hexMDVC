@@ -35,10 +35,10 @@ class ModelTest
 private class MockModel implements IOutputOwner
 {
     @Output
-    public var intOutput : IOutput<IIntConnection>;
+    public var intOutput( default, never ) : IOutput<IIntConnection>;
 	
 	@Output
-    public var stringOutput : IOutput<IStringConnection>;
+    public var stringOutput( default, never )  : IOutput<IStringConnection>;
 	
 	public var size : Size = new Size( 10, 20 );
 
