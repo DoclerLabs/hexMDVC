@@ -31,8 +31,8 @@ class ModelBuilder
 		
 		for ( f in fields )
 		{
-			var isDispatcher = f.meta.filter( function ( m ) { return m.name== ModelBuilder.OutputAnnotation; } ).length > 0;
-			if ( isDispatcher ) 
+			var isOutput = f.meta.filter( function ( m ) { return m.name== ModelBuilder.OutputAnnotation; } ).length > 0;
+			if ( isOutput ) 
 			{
 				switch( f.kind )
 				{ 
@@ -63,17 +63,70 @@ class ModelBuilder
 	static function _getKind( f, ?get, ?set )
 	{
 		var outputDefinition 	= ModelBuilder._getOutputDefinition( f );
-		var outputType 			= MacroUtil.getClassType( outputDefinition.fullyQualifiedName );
-
-		var e 			= ModelBuilder._buildClass( outputDefinition );
-		var className 	= e.pack.join( '.' ) + '.' + e.name;
-		var typePath 	= MacroUtil.getTypePath( className );
-		var complexType = TypeTools.toComplexType( Context.getType( className ) );
+		var e 					= ModelBuilder._buildClass( outputDefinition );
+		var className 			= e.pack.join( '.' ) + '.' + e.name;
+		var typePath 			= MacroUtil.getTypePath( className );
+		var complexType 		= TypeTools.toComplexType( Context.getType( className ) );
 		
 		return ( get == null && set == null ) ?
 			FVar( complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } ):
 			FProp( get, set, complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } );
 
+	}
+	
+	static function _getOutputDefinition( f ) : { name: String, pack: Array<String>, fullyQualifiedName: String }
+	{
+		var name 					: String 			= "";
+		var connectionDefinition 	: { name: String, pack: Array<String>, fullyQualifiedName: String } = null;
+		
+		//TODO DRY
+		switch ( f.kind )
+		{
+			case FVar( TPath( p ), e ):
+
+				ModelBuilder._checkIOutputImplementation( f, p );
+				connectionDefinition = ModelBuilder._getConnectionDefinition( p.params );
+				
+				var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
+				
+				switch ( t )
+				{
+					case TInst( t, p ):
+						var ct = t.get();
+						name = ct.pack.concat( [ ct.name ] ).join( '.' );
+
+					case _:
+				}
+			
+			case FProp( get, set, TPath( p ), e ):
+				
+				ModelBuilder._checkIOutputImplementation( f, p );
+				connectionDefinition = ModelBuilder._getConnectionDefinition( p.params );
+				
+				var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
+				
+				switch ( t )
+				{
+					case TInst( t, p ):
+						var ct = t.get();
+						name = ct.pack.concat( [ ct.name ] ).join( '.' );
+
+					case _:
+				}
+
+			case _:
+		}
+		
+		//TODO check double
+		var tpName = connectionDefinition.fullyQualifiedName;
+		if ( name != Type.getClassName( IOutput ) )
+		{
+			Context.fatalError( "'" + f.name + "' property with '@" + ModelBuilder.OutputAnnotation 
+				+ "' annotation should be typed '" + Type.getClassName( IOutput ) + "<" + tpName 
+				+ ">' instead of '" + name + "<" + tpName + ">'", f.pos );
+		}
+		
+		return connectionDefinition;
 	}
 	
 	static function _buildClass( interfaceName : { name: String, pack: Array<String>, fullyQualifiedName: String } ) : { name: String, pack: Array<String> }
@@ -206,60 +259,6 @@ class ModelBuilder
 		Context.defineType( dispatcherClass );
 		
 		return { name: dispatcherClass.name, pack: dispatcherClass.pack };
-	}
-	
-	static function _getOutputDefinition( f ) : { name: String, pack: Array<String>, fullyQualifiedName: String }
-	{
-		var name 					: String 			= "";
-		var connectionDefinition 	: { name: String, pack: Array<String>, fullyQualifiedName: String } = null;
-		
-		//TODO DRY
-		switch ( f.kind )
-		{
-			case FVar( TPath( p ), e ):
-
-				ModelBuilder._checkIOutputImplementation( f, p );
-				connectionDefinition = ModelBuilder._getConnectionDefinition( p.params );
-				
-				var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
-				
-				switch ( t )
-				{
-					case TInst( t, p ):
-						var ct = t.get();
-						name = ct.pack.concat( [ ct.name ] ).join( '.' );
-
-					case _:
-				}
-			
-			case FProp( get, set, TPath( p ), e ):
-				
-				ModelBuilder._checkIOutputImplementation( f, p );
-				connectionDefinition = ModelBuilder._getConnectionDefinition( p.params );
-				
-				var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
-				
-				switch ( t )
-				{
-					case TInst( t, p ):
-						var ct = t.get();
-						name = ct.pack.concat( [ ct.name ] ).join( '.' );
-
-					case _:
-				}
-
-			case _:
-		}
-		
-		var tpName = connectionDefinition.fullyQualifiedName;
-		if ( name != Type.getClassName( IOutput ) )
-		{
-			Context.fatalError( "'" + f.name + "' property with '@" + ModelBuilder.OutputAnnotation 
-				+ "' annotation should be typed '" + Type.getClassName( IOutput ) + "<" + tpName 
-				+ ">' instead of '" + name + "<" + tpName + ">'", f.pos );
-		}
-		
-		return connectionDefinition;
 	}
 	
 	static function _checkIOutputImplementation( f, tp : TypePath ) : Void
