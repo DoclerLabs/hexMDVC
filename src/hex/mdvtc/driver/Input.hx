@@ -9,7 +9,7 @@ import hex.mdvtc.model.IOutput;
 class Input<Connection> implements IInput<Connection>
 {
 	private var _driver : Connection;
-	private var _output : IOutput<Connection>;
+	private var _outputs : Array<IOutput<Connection>> = [];
 	
 	public function new( driver : Connection ) 
 	{
@@ -18,26 +18,34 @@ class Input<Connection> implements IInput<Connection>
 	
 	public function switchOn() : Void
 	{
-		this._output.connect( this._driver );
+		for ( output in this._outputs ) output.connect( this._driver );
 	}
 	
 	public function switchOff() : Void
 	{
-		this._output.disconnect( this._driver );
+		for ( output in this._outputs ) output.disconnect( this._driver );
 	}
 	
 	public function plug( output : IOutput<Connection>, switchOn : Bool = true ) : Void
 	{
-		if ( this._output != null )
+		if ( this._outputs.indexOf( output ) == -1 )
 		{
-			this._output.disconnect( this._driver );
+			this._outputs.push( output );
 		}
-		
-		this._output = output;
 		
 		if ( switchOn )
 		{
-			this._output.connect( this._driver );
+			output.connect( this._driver );
 		}
+	}
+	
+	public function unplug( output : IOutput<Connection> ) : Void
+	{
+		if ( this._outputs.indexOf( output ) != -1 )
+		{
+			this._outputs.remove( output );
+		}
+		
+		output.disconnect( this._driver );
 	}
 }

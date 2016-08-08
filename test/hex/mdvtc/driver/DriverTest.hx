@@ -66,6 +66,67 @@ class DriverTest
 		Assert.equals( mockDriver, mockStringOutput.lastDriverConnected, "driver should be connected to output after 'switchOn' method called" );
 		Assert.isNull( mockStringOutput.lastDriverDisconnected, "driver should not be disconnected after 'switchOn' method called" );
     }
+	
+	@Test( "test plug two output of the same type" )
+    public function testPlugTwoOutputsOfTheSameType() : Void
+    {
+		var mockDriver = new MockDriver();
+		MockDriver.reset();
+		
+		var mockIntOutput = new MockIntOutput();
+		mockIntOutput.lastDriverConnected = null;
+		mockIntOutput.lastDriverDisconnected = null;
+		
+		var anotherMockIntOutput = new MockIntOutput();
+		anotherMockIntOutput.lastDriverConnected = null;
+		anotherMockIntOutput.lastDriverDisconnected = null;
+		
+		//plug
+		mockDriver.intInput.plug( mockIntOutput );
+		Assert.equals( mockDriver, mockIntOutput.lastDriverConnected, "driver should be connected to output after 'plug' method called" );
+		Assert.isNull( mockIntOutput.lastDriverDisconnected, "driver should not be disconnected after 'plug' method called" );
+		Assert.isNull( anotherMockIntOutput.lastDriverConnected, "driver should not be connected to this output" );
+		Assert.isNull( anotherMockIntOutput.lastDriverDisconnected, "driver should not be disconnected from this output" );
+		
+		mockDriver.intInput.plug( anotherMockIntOutput );
+		Assert.equals( mockDriver, mockIntOutput.lastDriverConnected, "driver should still be connected to this output" );
+		Assert.isNull( mockIntOutput.lastDriverDisconnected, "driver should still not be disconnected from this output" );
+		Assert.equals( mockDriver, anotherMockIntOutput.lastDriverConnected, "driver should be connected to this new output after 'plug' method called" );
+		Assert.isNull( anotherMockIntOutput.lastDriverDisconnected, "driver should not be disconnected from this new output after 'plug' method called" );
+	}
+	
+	@Test( "test unplug two output of the same type" )
+    public function testUnplugTwoOutputsOfTheSameType() : Void
+    {
+		var mockDriver = new MockDriver();
+		MockDriver.reset();
+		
+		var mockIntOutput = new MockIntOutput();
+		var anotherMockIntOutput = new MockIntOutput();
+		
+		mockIntOutput.lastDriverConnected = null;
+		mockIntOutput.lastDriverDisconnected = null;
+		anotherMockIntOutput.lastDriverConnected = null;
+		anotherMockIntOutput.lastDriverDisconnected = null;
+		
+		//Should be disconnected even if it was never plugged
+		mockDriver.intInput.unplug( mockIntOutput );
+		Assert.isNull( mockIntOutput.lastDriverConnected, "driver should not be connected to this output" );
+		Assert.equals( mockDriver, mockIntOutput.lastDriverDisconnected, "driver should be disconnected from this output" );
+		Assert.isNull( anotherMockIntOutput.lastDriverConnected, "driver should not be connected to this output" );
+		Assert.isNull( anotherMockIntOutput.lastDriverDisconnected, "driver should not be disconnected from this output" );
+		
+		mockIntOutput.lastDriverConnected = null;
+		mockIntOutput.lastDriverDisconnected = null;
+		anotherMockIntOutput.lastDriverConnected = null;
+		anotherMockIntOutput.lastDriverDisconnected = null;
+		
+		mockDriver.intInput.unplug( anotherMockIntOutput );
+		Assert.isNull( mockIntOutput.lastDriverConnected, "driver should not be connected to this output" );
+		Assert.isNull( mockIntOutput.lastDriverDisconnected, "driver should not be disconnected from this output" );
+		Assert.isNull( anotherMockIntOutput.lastDriverConnected, "driver should not be connected to this output" );
+		Assert.equals( mockDriver, anotherMockIntOutput.lastDriverDisconnected, "driver should be disconnected from this output" );
+	}
 }
 
 private class MockDriver implements IIntConnection implements IStringConnection implements IInputOwner
