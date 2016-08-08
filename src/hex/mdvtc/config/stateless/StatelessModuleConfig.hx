@@ -24,54 +24,44 @@ class StatelessModuleConfig implements IStatelessConfig implements IInjectorCont
 		throw new VirtualMethodException( this + ".configure must be overridden" );
 	}
 	
-	public function mapController<ControllerType>( controllerInterface : Class<ControllerType>, controllerClass : Class<ControllerType>,  name : String = "" ) : ControllerType
+	public function get<T>( type : Class<T>, name : String = "" ) : T
 	{
-		var instance : ControllerType;
-		
-		if ( !this.injector.hasDirectMapping( controllerInterface, name ) )
-		{
-			instance = this.injector.instantiateUnmapped( controllerClass );
-			this.injector.mapToValue( controllerInterface, instance, name );
-		}
-		else
-		{
-			instance = this.injector.getInstance( controllerInterface, name );
-		}
-
-		return instance;
+		return this.injector.getInstance( type );
 	}
 	
-	public function mapModel<ModelType>( modelInterface : Class<ModelType>, modelClass : Class<ModelType>,  name : String = "" ) : ModelType
+	public function mapController<ControllerType>( controllerInterface : Class<ControllerType>, controllerClass : Class<ControllerType>,  name : String = "", asSingleton : Bool = false ) : Void
 	{
-		var instance : ModelType;
-		
-		if ( !this.injector.hasDirectMapping( modelInterface, name ) )
+		if ( !asSingleton )
 		{
-			instance = this.injector.instantiateUnmapped( modelClass );
-			this.injector.mapToValue( modelInterface, instance, name );
+			this.injector.mapToSingleton( controllerInterface, controllerClass, name );
 		}
 		else
 		{
-			instance = this.injector.getInstance( modelInterface, name );
+			this.injector.mapToType( controllerInterface, controllerClass, name );
 		}
-
-		return instance;
 	}
 	
-	public function mapDriver<DriverType>( driverInterface : Class<DriverType>, driverClass : Class<DriverType>,  name : String = "" ) : DriverType
+	public function mapModel<ModelType>( modelInterface : Class<ModelType>, modelClass : Class<ModelType>,  name : String = "", asSingleton : Bool = false ) : Void
 	{
-		var instance : DriverType;
-		
-		if ( !this.injector.hasDirectMapping( driverInterface, name ) )
+		if ( !asSingleton )
 		{
-			instance = this.injector.instantiateUnmapped( driverClass );
-			this.injector.mapToValue( driverInterface, instance, name );
+			this.injector.mapToSingleton( modelInterface, modelClass, name );
 		}
 		else
 		{
-			instance = this.injector.getInstance( driverInterface, name );
+			this.injector.mapToType( modelInterface, modelClass, name );
 		}
-
-		return instance;
+	}
+	
+	public function mapDriver<DriverType>( driverInterface : Class<DriverType>, driverClass : Class<DriverType>,  name : String = "", asSingleton : Bool = false ) : Void
+	{
+		if ( !asSingleton )
+		{
+			this.injector.mapToSingleton( driverInterface, driverClass, name );
+		}
+		else
+		{
+			this.injector.mapToType( driverInterface, driverClass, name );
+		}
 	}
 }
