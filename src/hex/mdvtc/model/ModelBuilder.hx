@@ -39,24 +39,18 @@ class ModelBuilder
 					//TODO handle properties with virtual getters/setters
 					case FVar( t, e ):
 						
-						var outputDefinition 	= ModelBuilder._getOutputDefinition( f );
-						var outputType 			= MacroUtil.getClassType( outputDefinition.fullyQualifiedName );
+						Context.fatalError( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
+							f.name + " ( default, never )' with '@" + ModelBuilder.OutputAnnotation + "' annotation", f.pos );
+					
+					case FProp( get, set, t, e ):
 						
-						if ( !outputType.isInterface )
+						if ( get != "default" || set != "never" )
 						{
-							Context.fatalError( "'<" + outputDefinition.fullyQualifiedName + 
-								">' should be an interface. No class is allowed for property's type parameter with '@" 
-									+ ModelBuilder.OutputAnnotation + "' annotation", f.pos );
+							Context.fatalError( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
+							f.name + " ( default, never )' with '@" + ModelBuilder.OutputAnnotation + "' annotation", f.pos );
 						}
-						else
-						{
-							var e 			= ModelBuilder._buildClass( outputDefinition );
-							var className 	= e.pack.join( '.' ) + '.' + e.name;
-							var typePath 	= MacroUtil.getTypePath( className );
-							var complexType = TypeTools.toComplexType( Context.getType( className ) );
-							
-							f.kind 			= FProp( 'default', 'never', complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } );
-						}
+						
+						f.kind = _getKind( f, get, set );
 						
 					case _:
 				}
@@ -65,6 +59,22 @@ class ModelBuilder
 
         return fields;
     }
+	
+	static function _getKind( f, ?get, ?set )
+	{
+		var outputDefinition 	= ModelBuilder._getOutputDefinition( f );
+		var outputType 			= MacroUtil.getClassType( outputDefinition.fullyQualifiedName );
+
+		var e 			= ModelBuilder._buildClass( outputDefinition );
+		var className 	= e.pack.join( '.' ) + '.' + e.name;
+		var typePath 	= MacroUtil.getTypePath( className );
+		var complexType = TypeTools.toComplexType( Context.getType( className ) );
+		
+		return ( get == null && set == null ) ?
+			FVar( complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } ):
+			FProp( get, set, complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } );
+
+	}
 	
 	static function _buildClass( interfaceName : { name: String, pack: Array<String>, fullyQualifiedName: String } ) : { name: String, pack: Array<String> }
 	{
@@ -203,10 +213,28 @@ class ModelBuilder
 		var name 					: String 			= "";
 		var connectionDefinition 	: { name: String, pack: Array<String>, fullyQualifiedName: String } = null;
 		
+		//TODO DRY
 		switch ( f.kind )
 		{
 			case FVar( TPath( p ), e ):
+
+				ModelBuilder._checkIOutputImplementation( f, p );
+				connectionDefinition = ModelBuilder._getConnectionDefinition( p.params );
 				
+				var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
+				
+				switch ( t )
+				{
+					case TInst( t, p ):
+						var ct = t.get();
+						name = ct.pack.concat( [ ct.name ] ).join( '.' );
+
+					case _:
+				}
+			
+			case FProp( get, set, TPath( p ), e ):
+				
+				ModelBuilder._checkIOutputImplementation( f, p );
 				connectionDefinition = ModelBuilder._getConnectionDefinition( p.params );
 				
 				var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
@@ -232,6 +260,18 @@ class ModelBuilder
 		}
 		
 		return connectionDefinition;
+	}
+	
+	static function _checkIOutputImplementation( f, tp : TypePath ) : Void
+	{
+		var className = MacroUtil.getClassFullQualifiedName( tp );
+		
+		if ( className != Type.getClassName( IOutput )  )
+		{
+			Context.fatalError( "'" + f.name + "' property with '@" + ModelBuilder.OutputAnnotation 
+								+ "' annotation is not typed '" + Type.getClassName( IOutput ) 
+								+ "<ConnecttionType>'", f.pos );
+		}
 	}
 	
 	static function _getConnectionDefinition( params : Array<TypeParam> ) : { name: String, pack: Array<String>, fullyQualifiedName: String }
