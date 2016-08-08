@@ -4,7 +4,8 @@ package hex.mdvtc.driver;
  * @author Francis Bourre
  */
 #if !macro
-@:autoBuild( hex.mdvtc.driver.DriverBuilder.build() )
+@:remove
+@:autoBuild( hex.mdvtc.driver.InputBuilder.build() )
 #end
 interface IInputOwner 
 {

@@ -4,7 +4,8 @@ package hex.mdvtc.model;
  * @author Francis Bourre
  */
 #if !macro
-@:autoBuild( hex.mdvtc.model.ModelBuilder.build() )
+@:remove
+@:autoBuild( hex.mdvtc.model.OutputBuilder.build() )
 #end
 interface IOutputOwner 
 {
