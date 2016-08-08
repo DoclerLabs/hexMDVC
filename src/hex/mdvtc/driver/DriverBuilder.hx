@@ -25,17 +25,12 @@ class DriverBuilder
     }
 	
 	//TODO make cache system
+	//TODO check if property's type extends IInput
 	macro static public function build() : Array<Field> 
 	{
 		var fields = Context.getBuildFields();
 		var inputVOList : Array<InputVO> = [];
-		
-		var interfaces = Context.getLocalClass().get().interfaces;
-		var implementedModuleNames : Array<String> = [];
-		for ( i in interfaces )
-		{
-			implementedModuleNames.push( i.t.get().module );
-		}
+		var implementedModules = [ for ( i in Context.getLocalClass().get().interfaces ) i.t.get() ];
 		
 		for ( f in fields )
 		{
@@ -49,10 +44,12 @@ class DriverBuilder
 					{
 						var inputDefinition = DriverBuilder._getInputDefinition( f );
 						var inputType 		= MacroUtil.getClassType( inputDefinition.fullyQualifiedName );
-						
-						if ( !inputType.isInterface )
+
+						if ( inputType.module != Type.getClassName( IInput )  )
 						{
-							Context.error( "'" + f.name + "' property with '@" + DriverBuilder.InputAnnotation + "' annotation should have interface type. No class is allowed.", f.pos );
+							Context.fatalError( "'" + f.name + "' property with '@" + DriverBuilder.InputAnnotation 
+												+ "' annotation is not typed '" + Type.getClassName( IInput ) 
+												+ "<ConnecttionType>'", f.pos );
 						}
 						else
 						{
@@ -60,11 +57,10 @@ class DriverBuilder
 							var typePath 				= MacroUtil.getTypePath( className );
 							var complexType 			= TypeTools.toComplexType( Context.getType( className ) );
 
-							var classType				= MacroUtil.getClassType( inputDefinition.connectionInterfaceName );
-							if ( implementedModuleNames.indexOf( classType.module ) == -1 )
+							if ( !DriverBuilder._isImplementing( MacroUtil.getClassType( Context.getLocalClass().get().name ), implementedModules ) )
 							{
 								Context.fatalError( "'" + Context.getLocalClass().get().name + "' does not implement '" 
-													+ inputDefinition.connectionInterfaceName + "' and have '@" 
+													+ inputDefinition.connectionInterfaceName + "'\n It should with '@" 
 													+ DriverBuilder.InputAnnotation + "' annotation typed '"
 													+ className + "<" + inputDefinition.connectionInterfaceName + ">'", f.pos );
 							}
@@ -172,6 +168,19 @@ class DriverBuilder
 		}
 		
 		return null;
+	}
+	
+	static function _isImplementing( ct : ClassType, a : Array<ClassType> ) : Bool
+	{
+		for ( i in a )
+		{
+			if ( MacroUtil.implementsInterface( ct, i ) )
+			{
+				return true;
+			}
+		}
+		
+		return false;
 	}
 }
 
