@@ -188,7 +188,7 @@ class ProxyBuilder
 				
 			}
 			
-			public function proxy( model : $modelComplexType ) : Void
+			public inline function proxy( model : $modelComplexType ) : Void
 			{
 				this._model = model;
 			}
@@ -239,7 +239,7 @@ class ProxyBuilder
 									name: field.name,
 									pos: field.pos,
 									kind: null,
-									access: [ APublic ]
+									access: [ APublic, AInline ]
 								}
 
 								var methodName  = field.name;
