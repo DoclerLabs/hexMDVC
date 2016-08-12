@@ -8,13 +8,14 @@ import hex.unittest.assertion.Assert;
  */
 class ProxyTest
 {
-	@Test
-	public function test()
+	@Test( "test proxy behavior" )
+	public function testProxyBehavior()
 	{
 		var driver = new MockDriver();
 		var model = new MockModel();
+		model.setData( "test", 3 );
 		
-		/*driver.stringModel.proxy( model );
+		driver.stringModel.proxy( model );
 		Assert.equals( "test", driver.stringModel.getString() , "proxied method should return original result" );
 		
 		driver.intModel.proxy( model );
@@ -22,25 +23,8 @@ class ProxyTest
 		
 		driver.fullModel.proxy( model );
 		Assert.equals( "test", driver.fullModel.getString() , "proxied method should return original result" );
-		Assert.equals( 3, driver.fullModel.getInt() , "proxied method should return original result" );*/
-	}
-}
-
-private class MockModel
-{
-	public function new()
-	{
-		
-	}
-	
-	public function getString() : String
-	{
-		return "test";
-	}
-	
-	public function getInt() : Int
-	{
-		return 3;
+		Assert.equals( 3, driver.fullModel.getInt() , "proxied method should return original result" );
+		//Assert.equals( 10, driver.fullModel.getSum( 7 ) , "proxied method should return original result with passed parameteres" );
 	}
 }
 

@@ -2,12 +2,14 @@ package hex.mdvc.proxy;
 
 import haxe.macro.Context;
 import haxe.macro.Expr;
+import haxe.macro.Type.ClassField;
 import haxe.macro.Type.ClassType;
 import haxe.macro.TypeTools;
 import hex.error.PrivateConstructorException;
 import hex.util.MacroUtil;
 
 using haxe.macro.Context;
+
 
 /**
  * ...
@@ -16,6 +18,7 @@ using haxe.macro.Context;
 @:final 
 class ProxyBuilder
 {
+	public static var ID : UInt = 0;
 	public static inline var ProxyAnnotation = "Proxy";
 	
 	/** @private */
@@ -93,22 +96,20 @@ class ProxyBuilder
 		return a;
 	}
 	
-	static function _getKind( f, methodList, ?get, ?set )
+	static function _getKind( f, methodList : Array<String>, ?get, ?set )
 	{
 		var proxyDefinition 	= ProxyBuilder._getProxyDefinition( f );
 		var proxyType 			= MacroUtil.getClassType( proxyDefinition.fullyQualifiedName );
-		
-		trace( methodList );
-		trace( proxyDefinition.fullyQualifiedName );
 
-		/*var e 			= ProxyBuilder._buildClass( proxyDefinition );
+
+		var e 					= ProxyBuilder._buildClass( proxyDefinition, methodList );
 		var className 	= e.pack.join( '.' ) + '.' + e.name;
 		var typePath 	= MacroUtil.getTypePath( className );
 		var complexType = TypeTools.toComplexType( Context.getType( className ) );
 		
 		return ( get == null && set == null ) ?
 			FVar( complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } ):
-			FProp( get, set, complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } );*/
+			FProp( get, set, complexType, { expr: MacroUtil.instantiate( typePath ), pos: f.pos } );
 		
 		return f.kind;
 	}
@@ -168,9 +169,123 @@ class ProxyBuilder
 		return connectionDefinition;
 	}
 	
-	static function _buildClass( interfaceName : { name: String, pack: Array<String>, fullyQualifiedName: String } ) : { name: String, pack: Array<String> }
+	static function _buildClass( modelClassName : { name: String, pack: Array<String>, fullyQualifiedName: String }, methodList : Array<String> ) : { name: String, pack: Array<String> }
 	{
-		return null;
+		//TODO make cache for generated classes
+		ProxyBuilder.ID++;
+		
+		var className 			= "__" + ProxyBuilder.ProxyAnnotation + '_Class_For__' + modelClassName.name + ID;
+		var type 				= Context.getType( modelClassName.fullyQualifiedName );
+		var modelComplexType 	= TypeTools.toComplexType( type );
+		
+		//TODO implements IProxy
+		var proxyClass = macro class $className
+		{ 
+			var _model : $modelComplexType;
+			
+			public function new() 
+			{
+				
+			}
+			
+			public function proxy( model : $modelComplexType ) : Void
+			{
+				this._model = model;
+			}
+		};
+		
+		var newFields = proxyClass.fields;
+		switch( type )
+		{
+			case TInst( _.get() => cls, params ):
+
+				var fields : Array<ClassField> = cls.fields.get();
+
+				for ( field in fields )
+				{
+					if ( methodList.indexOf( field.name ) != -1 )
+					{
+						//
+						switch( field.kind )
+						{
+							case FMethod( k ):
+								
+								var fieldType 					= field.type;
+								var ret : ComplexType 			= null;
+								var args : Array<FunctionArg> 	= [];
+
+								switch( fieldType )
+								{
+									case TFun( a, r ):
+										trace( a );
+										ret = r.toComplexType();
+
+										if ( a.length > 0 )
+										{
+											args = a.map( function( arg )
+											{
+												trace( { name: arg.name, type: arg.t.toComplexType(), opt: arg.opt } );
+												return cast { name: arg.name, type: arg.t.toComplexType(), opt: arg.opt };
+											} );
+										}
+									
+									case TLazy( f ):
+								//		trace( f );
+										
+									case _:
+								}
+								
+								var newField : Field = 
+								{
+									meta: field.meta.get(),
+									name: field.name,
+									pos: field.pos,
+									kind: null,
+									access: [ APublic ]
+								}
+
+								var methodName  = field.name;
+								var methArgs = [ for ( arg in args ) macro $i { arg.name } ];
+							//	trace( field.name, methArgs );
+								var body = 
+								macro 
+								{
+									return this._model.$methodName( $a{ methArgs } );
+								};
+								
+								
+								newField.kind = FFun( 
+									{
+										args: args,
+										ret: ret,
+										expr: body
+									}
+								);
+								
+								newFields.push( newField );
+								
+							case _:
+						}
+						//
+					}
+				}
+
+				case _:
+		}
+		
+		proxyClass.pack = modelClassName.pack.copy();
+		
+		/*switch( proxyClass.kind )
+		{
+			case TDClass( superClass, interfaces, isInterface ):
+				interfaces.push( typePath );
+				
+			case _:
+		}*/
+		
+		Context.defineType( proxyClass );
+		
+		return { name: proxyClass.name, pack: proxyClass.pack };
 	}
 	
 	static function _checkIProxyImplementation( f, tp : TypePath ) : Void
