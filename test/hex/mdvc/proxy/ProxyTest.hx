@@ -24,7 +24,7 @@ class ProxyTest
 		driver.fullModel.proxy( model );
 		Assert.equals( "test", driver.fullModel.getString() , "proxied method should return original result" );
 		Assert.equals( 3, driver.fullModel.getInt() , "proxied method should return original result" );
-		//Assert.equals( 10, driver.fullModel.getSum( 7 ) , "proxied method should return original result with passed parameteres" );
+		Assert.equals( 10, driver.fullModel.getSum( 7 ) , "proxied method should return original result with passed parameteres" );
 	}
 }
 
@@ -36,11 +36,11 @@ private class MockDriver implements IProxyOwner
 	}
 	
 	@Proxy( getString )
-    public var stringModel ( default, never ) : IProxy<MockModel>;
+    public var stringModel ( default, never ) : IProxy<IMockModel>;
 	
 	@Proxy( getInt )
-    public var intModel ( default, never )  : IProxy<MockModel>;
+    public var intModel ( default, never )  : IProxy<IMockModel>;
 	
-	@Proxy( getString, getInt )
-    public var fullModel ( default, never )  : IProxy<MockModel>;
+	@Proxy( getString, getInt, getSum )
+    public var fullModel ( default, never )  : IProxy<IMockModel>;
 }

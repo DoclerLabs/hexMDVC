@@ -20,10 +20,10 @@ class MockModel implements IMockModel
 		this._i = i;
 	}
 	
-	/*public function getSum( i : Int ) : Int
+	public function getSum( i : Int ) : Int
 	{
 		return this._i + i;
-	}*/
+	}
 	
 	public function getString() : String
 	{

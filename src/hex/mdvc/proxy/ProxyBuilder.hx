@@ -217,20 +217,18 @@ class ProxyBuilder
 								switch( fieldType )
 								{
 									case TFun( a, r ):
-										trace( a );
+
 										ret = r.toComplexType();
 
 										if ( a.length > 0 )
 										{
 											args = a.map( function( arg )
 											{
-												trace( { name: arg.name, type: arg.t.toComplexType(), opt: arg.opt } );
 												return cast { name: arg.name, type: arg.t.toComplexType(), opt: arg.opt };
 											} );
 										}
 									
 									case TLazy( f ):
-								//		trace( f );
 										
 									case _:
 								}
