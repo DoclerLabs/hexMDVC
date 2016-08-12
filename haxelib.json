@@ -1,13 +1,13 @@
 {
-  "name": "hexmdvtc",
+  "name": "hexmdvc",
   "license": "MIT",
   "classPath": "src",
-  "tags": ["hexmachina", "mdvtc", "oop"],
-  "description": "hexMDVTC is an implementation of Model Driver View Trigger Command",
+  "tags": ["hexmachina", "mdvc", "oop"],
+  "description": "hexMDVC is an implementation of Model Driver View Trigger Command",
   "contributors": ["doclerlabs"],
   "releasenote": "First release. Still alpha testing",
   "version": "0.1.0",
-  "url": "https://github.com/DoclerLabs/hexMDVTC",
+  "url": "https://github.com/DoclerLabs/hexMDVC",
   "dependencies": 
   {
 	"hexcore": "git:https://github.com/DoclerLabs/hexCore.git",

@@ -1,2 +1,2 @@
 build-each.hxml
--neko bin/MainMDVTCTest.n
+-neko bin/MainMDVCTest.n
