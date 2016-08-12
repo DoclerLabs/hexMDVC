@@ -1,4 +1,4 @@
--main MainMDVTCTest
+-main MainMDVCTest
 -cp src
 -cp test
 -cp hexcore/src
