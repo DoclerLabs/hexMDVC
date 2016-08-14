@@ -39,7 +39,8 @@ class InputBuilder
 				//TODO handle properties with virtual getters/setters
 				case FVar( t, e ):
 					
-					var isInput = f.meta.filter( function ( m ) { return m.name == InputBuilder.InputAnnotation; } ).length > 0;
+					var meta = f.meta.filter( function ( m ) { return m.name == InputBuilder.InputAnnotation; } );
+					var isInput = meta.length > 0;
 					if ( isInput ) 
 					{
 						var inputDefinition = InputBuilder._getInputDefinition( f );
@@ -70,6 +71,8 @@ class InputBuilder
 							var inputTypePath 			= MacroUtil.getTypePath( Type.getClassName( Input ), [ TPType( connectionComplexType ) ] );
 							inputVOList.push( { expr: { expr: MacroUtil.instantiate( inputTypePath, [macro this] ), pos: f.pos }, fieldName: f.name, pos: f.pos } );
 						}
+						
+						f.meta = [];//TODO remove
 					}
 				
 				case FFun( func ):

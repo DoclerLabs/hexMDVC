@@ -16,6 +16,16 @@ class Input<Connection> implements IInput<Connection>
 		this._driver = driver;
 	}
 	
+	public function forwardTo( driver : Connection, switchOn : Bool = true ) : Void
+	{
+		this.switchOff();
+		this._driver = driver;
+		if ( switchOn )
+		{
+			this.switchOn();
+		}
+	}
+	
 	public function switchOn() : Void
 	{
 		for ( output in this._outputs ) output.connect( this._driver );

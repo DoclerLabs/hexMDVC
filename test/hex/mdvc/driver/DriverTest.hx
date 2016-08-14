@@ -127,6 +127,51 @@ class DriverTest
 		Assert.isNull( anotherMockIntOutput.lastDriverConnected, "driver should not be connected to this output" );
 		Assert.equals( mockDriver, anotherMockIntOutput.lastDriverDisconnected, "driver should be disconnected from this output" );
 	}
+	
+	@Test( "test forwarding to another input" )
+    public function testForwardingToAnotherInput() : Void
+    {
+		var mockDriver 		= new MockDriver();
+		var anotherDriver 	= new AnotherMockDriver();
+		
+		AnotherMockDriver.reset();
+		MockDriver.reset();
+		
+		//intInput
+		var mockIntOutput = new MockIntOutput();
+		
+		mockDriver.intInput.plug( mockIntOutput );
+		mockDriver.intInput.forwardTo( anotherDriver, true );
+		
+		Assert.equals( anotherDriver, mockIntOutput.lastDriverConnected, "new driver should be connected to output after 'forward' method called" );
+		Assert.equals( mockDriver, mockIntOutput.lastDriverDisconnected, "initial driver should be disconnected after 'forward' method called" );
+		
+		mockIntOutput.lastDriverConnected = null;
+		mockIntOutput.lastDriverDisconnected = null;
+		
+		mockDriver.intInput.switchOff();
+		
+		Assert.equals( anotherDriver, mockIntOutput.lastDriverDisconnected, "new driver should be disconnected to output after 'switchOff' method called" );
+		Assert.isNull( mockIntOutput.lastDriverConnected, "new driver should not be connected after 'switchOff' method called" );
+		
+		//stringInput
+		var mockStringOutput = new MockStringOutput();
+		mockDriver.stringInput.plug( mockStringOutput, true );
+		
+		mockStringOutput.lastDriverConnected = null;
+		mockStringOutput.lastDriverDisconnected = null;
+		mockDriver.stringInput.forwardTo( anotherDriver, false );
+		
+		Assert.isNull( mockStringOutput.lastDriverConnected, "new driver should not be connected to output after 'forward' method called with 'false' parameter" );
+		Assert.equals( mockDriver, mockStringOutput.lastDriverDisconnected, "initial driver should be disconnected after 'forward' method called" );
+		
+		mockStringOutput.lastDriverConnected = null;
+		mockStringOutput.lastDriverDisconnected = null;
+		
+		mockDriver.stringInput.switchOn();
+		Assert.equals( anotherDriver, mockStringOutput.lastDriverConnected, "new driver should be connected to output after 'switchOn' method called" );
+		Assert.isNull( mockStringOutput.lastDriverDisconnected, "driver should not be disconnected after 'switchOn' method called" );
+    }
 }
 
 private class MockDriver implements IIntConnection implements IStringConnection implements IInputOwner
@@ -164,6 +209,35 @@ private class MockDriver implements IIntConnection implements IStringConnection 
 	{
 		MockDriver.callbackCallCount++;
 		MockDriver.callbackParam = s;
+	}
+}
+
+private class AnotherMockDriver implements IIntConnection implements IStringConnection
+{
+	public static var callbackCallCount : Int = 0;
+	public static var callbackParam 	: Dynamic = null;
+	
+	public function new()
+	{
+		
+	}
+	
+	static public function reset() : Void
+	{
+		AnotherMockDriver.callbackCallCount = 0;
+		AnotherMockDriver.callbackParam = null;
+	}
+	
+    public function onChangeIntValue( i : Int ) : Void
+	{
+		AnotherMockDriver.callbackCallCount++;
+		AnotherMockDriver.callbackParam = i;
+	}
+	
+	public function onChangeStringValue( s : String ) : Void
+	{
+		AnotherMockDriver.callbackCallCount++;
+		AnotherMockDriver.callbackParam = s;
 	}
 }
 

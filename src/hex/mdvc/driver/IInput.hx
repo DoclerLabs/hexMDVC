@@ -7,6 +7,7 @@ import hex.mdvc.model.IOutput;
  */
 interface IInput<Connection> 
 {
+	function forwardTo( driver : Connection, switchOn : Bool = true ) : Void;
 	function switchOn() : Void;
 	function switchOff() : Void;
 	function plug( output : IOutput<Connection>, switchOn : Bool = true ) : Void;
