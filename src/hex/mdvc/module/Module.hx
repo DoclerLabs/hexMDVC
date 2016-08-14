@@ -9,16 +9,15 @@ import hex.domain.ApplicationDomainDispatcher;
 import hex.domain.Domain;
 import hex.domain.DomainExpert;
 import hex.error.IllegalStateException;
-import hex.error.VirtualMethodException;
 import hex.event.Dispatcher;
 import hex.event.IDispatcher;
 import hex.event.MessageType;
 import hex.log.DomainLogger;
 import hex.log.ILogger;
-import hex.log.Stringifier;
 import hex.metadata.AnnotationProvider;
 import hex.metadata.IAnnotationProvider;
 import hex.module.IModule;
+import hex.module.ModuleMessage;
 
 /**
  * ...
@@ -43,9 +42,7 @@ class Module implements IModule
 		this._annotationProvider.registerInjector( this._injector );
 		
 		this._internalDispatcher = new Dispatcher<{}>();
-		//this._injector.mapToValue( IFrontController, new FrontController( this._internalDispatcher, this._injector, this ) );
 		this._injector.mapToValue( IDispatcher, this._internalDispatcher );
-		//this._injector.mapToType( IMacroExecutor, MacroExecutor );
 		this._injector.mapToValue( IModule, this );
 		
 		this._logger = new DomainLogger( this.getDomain() );
@@ -152,11 +149,6 @@ class Module implements IModule
 		this._internalDispatcher.dispatch( messageType, data );
 	}
 
-/*	function buildViewHelper( type : Class<IViewHelperTypedef>, view : IView ) : IViewHelperTypedef
-	{
-		return ViewHelperManager.getInstance( this ).buildViewHelper( this._injector, type, view );
-	}
-*/
 	/**
 	 * Release this module
 	 */
@@ -168,8 +160,6 @@ class Module implements IModule
 			this.isReleased = true;
 			this._onRelease();
 			this._fireReleaseEvent();
-
-			//ViewHelperManager.release( this );
 			
 			if ( this._domainDispatcher != null )
 			{
@@ -257,26 +247,7 @@ class Module implements IModule
 	{
 		return this._injector;
 	}
-	
-	/**
-	 * Getter for runtime dependencies that needs to be
-	 * checked before initialisation end
-	 * @return <code>IRuntimeDependencies</code> used by this module
-	 */
-/*	function _getRuntimeDependencies() : IRuntimeDependencies
-	{
-		throw new VirtualMethodException( Stringifier.stringify( this ) + ".checkDependencies is not implemented" );
-	}
-*/	
-	/**
-	 * Check collection of injected dependencies
-	 * @param	dependencies
-	 */
-/*	function _checkRuntimeDependencies( dependencies : IRuntimeDependencies ) : Void
-	{
-		RuntimeDependencyChecker.check( this, this._injector, dependencies );
-	}
-*/	
+
 	/**
 	 * Add collection of module configuration classes that 
 	 * need to be executed before initialisation's end
