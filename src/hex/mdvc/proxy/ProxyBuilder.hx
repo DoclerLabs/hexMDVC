@@ -44,14 +44,14 @@ class ProxyBuilder
 					//TODO handle properties with virtual getters/setters
 					case FVar( t, e ):
 						
-						Context.fatalError( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
+						Context.error( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
 							f.name + " ( default, never )' with '@" + ProxyBuilder.ProxyAnnotation + "' annotation", f.pos );
 					
 					case FProp( get, set, t, e ):
 						
 						if ( get != "default" || set != "never" )
 						{
-							Context.fatalError( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
+							Context.error( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
 							f.name + " ( default, never )' with '@" + ProxyBuilder.ProxyAnnotation + "' annotation", f.pos );
 						}
 						
@@ -161,7 +161,7 @@ class ProxyBuilder
 		var tpName = connectionDefinition.fullyQualifiedName;
 		if ( name != Type.getClassName( IProxy ) )
 		{
-			Context.fatalError( "'" + f.name + "' property with '@" + ProxyBuilder.ProxyAnnotation 
+			Context.error( "'" + f.name + "' property with '@" + ProxyBuilder.ProxyAnnotation 
 				+ "' annotation should be typed '" + Type.getClassName( IProxy ) + "<" + tpName 
 				+ ">' instead of '" + name + "<" + tpName + ">'", f.pos );
 		}
@@ -292,7 +292,7 @@ class ProxyBuilder
 		
 		if ( className != Type.getClassName( IProxy )  )
 		{
-			Context.fatalError( "'" + f.name + "' property with '@" + ProxyBuilder.ProxyAnnotation 
+			Context.error( "'" + f.name + "' property with '@" + ProxyBuilder.ProxyAnnotation 
 								+ "' annotation is not typed '" + Type.getClassName( IProxy ) 
 								+ "<ConnecttionType>'", f.pos );
 		}

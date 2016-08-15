@@ -48,7 +48,7 @@ class InputBuilder
 
 						if ( inputType.module != Type.getClassName( IInput )  )
 						{
-							Context.fatalError( "'" + f.name + "' property with '@" + InputBuilder.InputAnnotation 
+							Context.error( "'" + f.name + "' property with '@" + InputBuilder.InputAnnotation 
 												+ "' annotation is not typed '" + Type.getClassName( IInput ) 
 												+ "<ConnecttionType>'", f.pos );
 						}
@@ -60,7 +60,7 @@ class InputBuilder
 
 							if ( !InputBuilder._isImplementing( MacroUtil.getClassType( Context.getLocalClass().get().name ), implementedModules ) )
 							{
-								Context.fatalError( "'" + Context.getLocalClass().get().name + "' does not implement '" 
+								Context.error( "'" + Context.getLocalClass().get().name + "' does not implement '" 
 													+ inputDefinition.connectionInterfaceName + "'\n It should with '@" 
 													+ InputBuilder.InputAnnotation + "' annotation typed '"
 													+ className + "<" + inputDefinition.connectionInterfaceName + ">'", f.pos );

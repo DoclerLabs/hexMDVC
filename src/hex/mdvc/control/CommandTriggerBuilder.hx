@@ -54,7 +54,7 @@ class CommandTriggerBuilder
 						
 						if ( m.length > 1 )
 						{
-							Context.fatalError(  	"'" + f.name + "' method defines more than one command mapping (with '@" + 
+							Context.error(  	"'" + f.name + "' method defines more than one command mapping (with '@" + 
 													CommandTriggerBuilder.MapAnnotation + "' annotation) in '" + className + "' class", m[ 1 ].pos );
 						}
 						
@@ -77,7 +77,7 @@ class CommandTriggerBuilder
 											}
 											catch ( e : Dynamic )
 											{
-												Context.fatalError( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
+												Context.error( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
 													"' annotation) to '" + f.name + "' method in '" + className + "' class", param.pos );
 											}
 											
@@ -96,7 +96,7 @@ class CommandTriggerBuilder
 						
 						if ( command.name == null )
 						{
-							Context.fatalError( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
+							Context.error( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
 								"' annotation) to '" + f.name + "' method in '" + className + "' class", command.pos );
 						}
 						
@@ -105,7 +105,7 @@ class CommandTriggerBuilder
 
 						if ( !MacroUtil.isSubClassOf( MacroUtil.getClassType( command.name ), CommandClassType ) )
 						{
-							Context.fatalError( "'" + className + "' is mapped as a command class (with '@" + CommandTriggerBuilder.MapAnnotation + 
+							Context.error( "'" + className + "' is mapped as a command class (with '@" + CommandTriggerBuilder.MapAnnotation + 
 								"' annotation), but it doesn't extend '" + CommandClassType.module + "' class", command.pos );
 						}
 
@@ -151,7 +151,7 @@ class CommandTriggerBuilder
 										
 										if ( !MacroUtil.implementsInterface( MacroUtil.getClassType( p.name ), ICompletableClassType ) )
 										{
-											Context.fatalError( "returned type '" + p.name + "' doesn't implement '" + ICompletableClassType.module + "' interface", f.pos );
+											Context.error( "returned type '" + p.name + "' doesn't implement '" + ICompletableClassType.module + "' interface", f.pos );
 										}
 										else
 										{

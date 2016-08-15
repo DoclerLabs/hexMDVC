@@ -39,14 +39,14 @@ class OutputBuilder
 					//TODO handle properties with virtual getters/setters
 					case FVar( t, e ):
 						
-						Context.fatalError( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
+						Context.error( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
 							f.name + " ( default, never )' with '@" + OutputBuilder.OutputAnnotation + "' annotation", f.pos );
 					
 					case FProp( get, set, t, e ):
 						
 						if ( get != "default" || set != "never" )
 						{
-							Context.fatalError( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
+							Context.error( "'" + f.name + "' property is not public with read access only.\n Use 'public var " +
 							f.name + " ( default, never )' with '@" + OutputBuilder.OutputAnnotation + "' annotation", f.pos );
 						}
 						
@@ -121,7 +121,7 @@ class OutputBuilder
 		var tpName = connectionDefinition.fullyQualifiedName;
 		if ( name != Type.getClassName( IOutput ) )
 		{
-			Context.fatalError( "'" + f.name + "' property with '@" + OutputBuilder.OutputAnnotation 
+			Context.error( "'" + f.name + "' property with '@" + OutputBuilder.OutputAnnotation 
 				+ "' annotation should be typed '" + Type.getClassName( IOutput ) + "<" + tpName 
 				+ ">' instead of '" + name + "<" + tpName + ">'", f.pos );
 		}
@@ -267,7 +267,7 @@ class OutputBuilder
 		
 		if ( className != Type.getClassName( IOutput )  )
 		{
-			Context.fatalError( "'" + f.name + "' property with '@" + OutputBuilder.OutputAnnotation 
+			Context.error( "'" + f.name + "' property with '@" + OutputBuilder.OutputAnnotation 
 								+ "' annotation is not typed '" + Type.getClassName( IOutput ) 
 								+ "<ConnecttionType>'", f.pos );
 		}
