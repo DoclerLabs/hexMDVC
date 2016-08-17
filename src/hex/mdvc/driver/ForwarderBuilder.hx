@@ -38,9 +38,23 @@ class ForwarderBuilder
 					{
 						var methodList = ForwarderBuilder._getMethodList( meta )[ 0 ];
 						
-						var methArgs = [ for ( arg in func.args ) macro $i{ arg.name } ];
-						var body = macro { $p{ methodList }( $a{ methArgs } ); };
-						func.expr = body;
+						//
+						var expressions = [ macro @:mergeBlock {} ];
+						
+						var methArgs = [ for ( arg in func.args ) macro $i { arg.name } ];
+						var methodName = f.name;
+						
+						var body = macro @:mergeBlock
+						{
+							$p{ methodList }( $a{ methArgs } ); 
+						};
+						
+						//
+						expressions.push( body );
+						expressions.push( func.expr );
+						var finalExpression = macro $b { expressions };
+						func.expr = finalExpression;
+						
 						f.meta = [];//TODO remove
 					}
 					
