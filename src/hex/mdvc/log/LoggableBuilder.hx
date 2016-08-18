@@ -35,6 +35,8 @@ class LoggableBuilder
 		{
 			switch( f.kind )
 			{ 
+				//TODO exclude constructor
+				//TODO add class metadata that adds the injected logger property 
 				//TODO make unit tests
 				case FFun( func ):
 					
@@ -43,8 +45,6 @@ class LoggableBuilder
 					var isLoggable = meta.length > 0;
 					if ( isLoggable ) 
 					{
-						//var methodList = LoggableBuilder._getMethodList( meta )[ 0 ];
-						
 						#if debug
 						var expressions = [ macro @:mergeBlock {} ];
 						var methArgs = [ for ( arg in func.args ) macro @:pos(f.pos) $i { arg.name } ];
@@ -63,7 +63,7 @@ class LoggableBuilder
 						func.expr = macro @:pos(f.pos) $b { expressions };
 						#end
 						
-						f.meta = [];//TODO remove
+						f.meta = [ meta[ 0 ] ];//TODO Check everything is fine
 					}
 					
 				case _:
@@ -72,42 +72,5 @@ class LoggableBuilder
 		}
 		
 		return fields;
-	}
-	
-	static function _getMethodList( meta : Metadata ) : Array<Array<String>>
-	{
-		var a = [];
-		for ( m in meta )
-		{
-			var params = m.params;
-			for ( p in params )
-			{
-				var e = switch( p.expr )
-				{
-					case EConst( c ):
-						switch( c )
-						{
-							case CIdent( s ):
-								[ s.toString() ];
-								
-							case _: null;
-						}
-					
-					case EField( e, field ):
-						switch( e.expr ) 
-						{ 
-							case EConst( CIdent( s ) ):
-								[ s.toString(), field ];
-								
-							case _: null;
-						}
-						
-					case _: null;
-				}
-				
-				a.push( e );
-			}
-		}
-		return a;
 	}
 }
