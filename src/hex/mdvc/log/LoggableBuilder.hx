@@ -16,9 +16,6 @@ class LoggableBuilder
 	public static inline var ErrorAnnotation 	= "Error";
 	public static inline var FatalAnnotation 	= "Fatal";
 	
-	public static inline var LoggableAnnotation = "Log";
-
-	
 	/** @private */
     function new()
     {
@@ -29,7 +26,7 @@ class LoggableBuilder
 	{
 		var fields = Context.getBuildFields();
 		var className = Context.getLocalClass().get().module;
-		var loggerAnnotations = [ DebugAnnotation, InfoAnnotation, WarnAnnotation, ErrorAnnotation, FatalAnnotation, LoggableAnnotation ];
+		var loggerAnnotations = [ DebugAnnotation, InfoAnnotation, WarnAnnotation, ErrorAnnotation, FatalAnnotation ];
 
 		for ( f in fields )
 		{
@@ -41,7 +38,6 @@ class LoggableBuilder
 				case FFun( func ):
 					
 					var meta = f.meta.filter( function ( m ) { return loggerAnnotations.indexOf( m.name ) != -1; } );
-					//var meta = f.meta.filter( function ( m ) { return m.name == LoggableBuilder.LoggableAnnotation; } );
 					var isLoggable = meta.length > 0;
 					if ( isLoggable ) 
 					{
@@ -54,7 +50,7 @@ class LoggableBuilder
 						var body = macro @:pos(f.pos) @:mergeBlock
 						{
 							#if debug
-							logger.$methodName( [$a { debugArgs } ]/*, $v{posVO}*/ );
+							logger.$methodName( [$a { debugArgs } ] );
 							#end
 						};
 

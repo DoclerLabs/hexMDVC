@@ -27,7 +27,6 @@ class ForwarderBuilder
 			switch( f.kind )
 			{ 
 				//TODO handle multiple forward
-				//TODO merge method bodies
 				//TODO make unit tests
 				//TODO exclude constructor
 				case FFun( func ):
