@@ -21,6 +21,11 @@ class ForwarderBuilder
 	macro static public function build() : Array<Field> 
 	{
 		var fields = Context.getBuildFields();
+		
+		if ( Context.getLocalClass().get().isInterface )
+		{
+			return fields;
+		}
 
 		for ( f in fields )
 		{

@@ -25,6 +25,12 @@ class LoggableBuilder
 	macro static public function build() : Array<Field> 
 	{
 		var fields = Context.getBuildFields();
+		
+		if ( Context.getLocalClass().get().isInterface )
+		{
+			return fields;
+		}
+		
 		var className = Context.getLocalClass().get().module;
 		var loggerAnnotations = [ DebugAnnotation, InfoAnnotation, WarnAnnotation, ErrorAnnotation, FatalAnnotation ];
 

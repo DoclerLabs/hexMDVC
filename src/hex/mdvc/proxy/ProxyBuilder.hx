@@ -33,6 +33,11 @@ class ProxyBuilder
 	{
 		var fields = Context.getBuildFields();
 		
+		if ( Context.getLocalClass().get().isInterface )
+		{
+			return fields;
+		}
+		
 		for ( f in fields )
 		{
 			var meta = f.meta.filter( function ( m ) { return m.name == ProxyBuilder.ProxyAnnotation; } );

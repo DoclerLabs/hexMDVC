@@ -29,6 +29,12 @@ class InputBuilder
 	macro static public function build() : Array<Field> 
 	{
 		var fields = Context.getBuildFields();
+		
+		if ( Context.getLocalClass().get().isInterface )
+		{
+			return fields;
+		}
+		
 		var inputVOList : Array<InputVO> = [];
 		var implementedModules = [ for ( i in Context.getLocalClass().get().interfaces ) i.t.get() ];
 		
