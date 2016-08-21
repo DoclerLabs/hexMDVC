@@ -275,4 +275,9 @@ class Module implements IModule
 			configuration.configure( this._injector, this._internalDispatcher, this );
 		}
 	}
+	
+	function _get<T>( type : Class<T> ) : T
+	{
+		return this._injector.getInstance( type );
+	}
 }
