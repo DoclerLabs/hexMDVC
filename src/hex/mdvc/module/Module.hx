@@ -14,6 +14,7 @@ import hex.event.IDispatcher;
 import hex.event.MessageType;
 import hex.log.DomainLogger;
 import hex.log.ILogger;
+import hex.mdvc.log.IsLoggable;
 import hex.metadata.AnnotationProvider;
 import hex.metadata.IAnnotationProvider;
 import hex.module.IModule;
@@ -23,13 +24,14 @@ import hex.module.ModuleMessage;
  * ...
  * @author Francis Bourre
  */
-class Module implements IModule
+class Module implements IModule implements IsLoggable
 {
 	var _internalDispatcher 	: IDispatcher<{}>;
 	var _domainDispatcher 		: IDispatcher<{}>;
 	var _injector 				: Injector;
 	var _annotationProvider 	: IAnnotationProvider;
-	var _logger 				: ILogger;
+	
+	var logger 					: ILogger;
 
 	public function new()
 	{
@@ -45,8 +47,8 @@ class Module implements IModule
 		this._injector.mapToValue( IDispatcher, this._internalDispatcher );
 		this._injector.mapToValue( IModule, this );
 		
-		this._logger = new DomainLogger( this.getDomain() );
-		this._injector.mapToValue( ILogger, this._logger );
+		this.logger = new DomainLogger( this.getDomain() );
+		this._injector.mapToValue( ILogger, this.logger );
 	}
 			
 	/**
@@ -174,7 +176,7 @@ class Module implements IModule
 			this._injector.destroyInstance( this );
 			this._injector.teardown();
 			
-			this._logger = null;
+			this.logger = null;
 		}
 		else
 		{
@@ -189,7 +191,7 @@ class Module implements IModule
 	
 	public function getLogger() : ILogger
 	{
-		return this._logger;
+		return this.logger;
 	}
 	
 	/**
