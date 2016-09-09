@@ -1,8 +1,6 @@
 package hex.mdvc.control;
 
 import haxe.macro.Expr.Position;
-
-#if macro
 import haxe.macro.Context;
 import haxe.macro.Expr.Field;
 import hex.control.ICompletable;
@@ -11,7 +9,6 @@ import hex.error.PrivateConstructorException;
 import hex.module.IModule;
 import hex.util.ClassUtil;
 import hex.util.MacroUtil;
-#end
 
 /**
  * ...
