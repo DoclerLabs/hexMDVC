@@ -29,6 +29,6 @@ class MockCommandClassWithParameters extends Command<String>
 	
 	function _end() : Void
 	{
-		this._complete( this._message );
+		this.complete( this._message );
 	}
 }
