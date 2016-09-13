@@ -58,7 +58,7 @@ class Command<ResultType> implements ICompletable<ResultType>
 		return this;
 	}
 	
-	function _complete( result : ResultType ) : Void
+	public function complete( result : ResultType ) : Void
 	{
 		if ( !this._hasCompleted && !this._hasFailed )
 		{
@@ -74,7 +74,7 @@ class Command<ResultType> implements ICompletable<ResultType>
 		}
 	}
 	
-	function _fail( errorMessage : String ) : Void
+	public function fail( errorMessage : String ) : Void
 	{
 		if ( !this._hasCompleted && !this._hasFailed )
 		{
