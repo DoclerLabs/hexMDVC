@@ -70,32 +70,6 @@ class CommandTriggerTest
 	}
 }
 
-private class MockCommandTrigger extends CommandTrigger implements IMockCommandTrigger
-{
-	public function new()
-	{
-		super();
-	}
-	
-	@Map( hex.mdvc.control.MockCommandClassWithoutParameters )
-	public function print() : ICompletable<Void> { return null; }
-	
-	@Map( hex.mdvc.control.MockCommandClassWithParameters )
-	public function say( text : String, sender : CommandTriggerTest ) : Responder<String> { return null; }
-
-	public function sum( a : Int, b : Int ) : Int 
-	{ 
-		return a + b;
-	}
-}
-
-private interface IMockCommandTrigger extends ICommandTrigger
-{
-	function print() : ICompletable<Void>;
-	function say( text : String, sender : CommandTriggerTest ) : Responder<String>;
-	function sum( a : Int, b : Int ) : Int ;
-}
-
 private class MockModule implements IModule
 {
 	public function new()
