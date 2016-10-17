@@ -4,7 +4,7 @@ import hex.control.command.ICommand;
 import hex.control.payload.ExecutionPayload;
 import hex.di.IInjectorContainer;
 import hex.log.ILogger;
-import hex.mdvc.log.IsLoggable;
+import hex.log.IsLoggable;
 
 /**
  * ...
