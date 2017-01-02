@@ -1,6 +1,6 @@
 package hex.mdvc.driver;
 
-import hex.mdvc.model.IOutput;
+import hex.event.ITrigger;
 
 /**
  * ...
@@ -9,7 +9,7 @@ import hex.mdvc.model.IOutput;
 class Input<Connection> implements IInput<Connection>
 {
 	private var _driver : Connection;
-	private var _outputs : Array<IOutput<Connection>> = [];
+	private var _outputs : Array<ITrigger<Connection>> = [];
 	
 	public function new( driver : Connection ) 
 	{
@@ -36,7 +36,7 @@ class Input<Connection> implements IInput<Connection>
 		for ( output in this._outputs ) output.disconnect( this._driver );
 	}
 	
-	public function plug( output : IOutput<Connection>, switchOn : Bool = true ) : Void
+	public function plug( output : ITrigger<Connection>, switchOn : Bool = true ) : Void
 	{
 		if ( this._outputs.indexOf( output ) == -1 )
 		{
@@ -49,7 +49,7 @@ class Input<Connection> implements IInput<Connection>
 		}
 	}
 	
-	public function unplug( output : IOutput<Connection> ) : Void
+	public function unplug( output : ITrigger<Connection> ) : Void
 	{
 		if ( this._outputs.indexOf( output ) != -1 )
 		{

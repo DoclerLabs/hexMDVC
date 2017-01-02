@@ -1,8 +1,8 @@
 package hex.mdvc.driver;
 
-import hex.mdvc.model.IIntConnection;
-import hex.mdvc.model.IOutput;
-import hex.mdvc.model.IStringConnection;
+import hex.event.IIntConnection;
+import hex.event.ITrigger;
+import hex.event.IStringConnection;
 import hex.structures.Size;
 import hex.unittest.assertion.Assert;
 
@@ -257,7 +257,7 @@ private class MockStringOutput extends MockOutput<IStringConnection>
 	}
 }
 
-private class MockOutput<Connection> implements IOutput<Connection>
+private class MockOutput<Connection> implements ITrigger<Connection>
 {
 	public var lastDriverConnected : Connection = null;
 	public var lastDriverDisconnected : Connection = null;
