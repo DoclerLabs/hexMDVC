@@ -30,8 +30,6 @@ class Module implements IModule implements IsLoggable
 	var _domainDispatcher 		: IDispatcher<{}>;
 	var _injector 				: Injector;
 	var _annotationProvider 	: IAnnotationProvider;
-	
-	var logger 					: ILogger;
 
 	public function new()
 	{
