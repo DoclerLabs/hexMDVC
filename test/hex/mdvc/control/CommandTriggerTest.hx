@@ -1,9 +1,7 @@
 package hex.mdvc.control;
 
-import hex.control.ICompletable;
-import hex.control.Responder;
 import hex.di.IDependencyInjector;
-import hex.di.InjectionEvent;
+import hex.di.IInjectorListener;
 import hex.di.provider.IDependencyProvider;
 import hex.domain.Domain;
 import hex.event.MessageType;
@@ -202,12 +200,12 @@ private class MockDependencyInjector implements IDependencyInjector
 		
 	}
 
-	public function addEventListener( eventType : String, callback : InjectionEvent->Void ) : Bool
+	public function addListener( listener : IInjectorListener ) : Bool
 	{
 		return false;
 	}
 
-	public function removeEventListener( eventType : String, callback : InjectionEvent->Void ) : Bool
+	public function removeListener( listener : IInjectorListener ) : Bool
 	{
 		return false;
 	}
