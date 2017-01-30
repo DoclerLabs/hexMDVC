@@ -278,4 +278,9 @@ private class MockOutput<Connection> implements ITrigger<Connection>
 		this.lastDriverDisconnected = input;
 		return false;
 	}
+	
+	public function disconnectAll() : Void
+	{
+		//
+	}
 }
