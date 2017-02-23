@@ -4,7 +4,7 @@ import haxe.Http;
 import hex.collection.HashMap;
 import hex.data.IParser;
 import hex.error.NullPointerException;
-import hex.log.Stringifier;
+import hex.util.Stringifier;
 import hex.service.stateless.http.HTTPRequestHeader;
 import hex.service.stateless.http.HTTPRequestMethod;
 import hex.service.stateless.http.HTTPServiceConfiguration;
