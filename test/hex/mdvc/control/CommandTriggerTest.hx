@@ -8,7 +8,6 @@ import hex.event.MessageType;
 import hex.log.ILogger;
 import hex.module.IModule;
 import hex.unittest.assertion.Assert;
-import hex.unittest.runner.MethodRunner;
 
 /**
  * ...
@@ -18,14 +17,14 @@ class CommandTriggerTest
 {
 	var _injector   		: MockDependencyInjector;
 	var _module     		: MockModule;
-	var _controller 		: MockCommandTrigger;
+	var _controller 		: MockController;
 
     @Before
     public function setUp() : Void
     {
 		this._injector 				= new MockDependencyInjector();
 		this._module 				= new MockModule();
-        this._controller 			= new MockCommandTrigger();
+        this._controller 			= new MockController();
 		this._controller.injector 	= this._injector;
 		this._controller.module 	= this._module;
     }
@@ -47,18 +46,18 @@ class CommandTriggerTest
 		Assert.equals( 1, MockCommandClassWithoutParameters.callCount, "" );
 	}
 	
-	@Async( "test controller call with mapping and parameters" )
+	@Test( "test controller call with mapping and parameters" )
 	public function testControllerCallWithMappingAndParameters() : Void
 	{
 		MockCommandClassWithoutParameters.callCount = 0;
-		this._controller.say( "hola mundo", this ).onComplete( MethodRunner.asyncHandler( this._onTestComplete ) );
-	}
-	
-	function _onTestComplete( message : String ) : Void
-	{
-		Assert.equals( 1, MockCommandClassWithParameters.callCount, "" );
-		Assert.equals( "hola mundo", message, "" );
-		Assert.equals( this, MockCommandClassWithParameters.sender, "" );
+		var f = function ( message : String )
+		{
+			Assert.equals( 1, MockCommandClassWithParameters.callCount, "" );
+			Assert.equals( "hola mundo", message, "" );
+			Assert.equals( this, MockCommandClassWithParameters.sender, "" );
+		}
+		
+		this._controller.say( "hola mundo", this ).onComplete( f );
 	}
 	
 	@Test( "test controller call without mapping" )

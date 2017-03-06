@@ -4,11 +4,11 @@ import haxe.Http;
 import hex.collection.HashMap;
 import hex.data.IParser;
 import hex.error.NullPointerException;
-import hex.util.Stringifier;
 import hex.service.stateless.http.HTTPRequestHeader;
 import hex.service.stateless.http.HTTPRequestMethod;
 import hex.service.stateless.http.HTTPServiceConfiguration;
 import hex.service.stateless.http.HTTPServiceParameters;
+import hex.util.Stringifier;
 
 /**
  * ...
@@ -157,4 +157,3 @@ class HttpRequest<ResultType> extends Command<ResultType>
         }
     }
 }
-

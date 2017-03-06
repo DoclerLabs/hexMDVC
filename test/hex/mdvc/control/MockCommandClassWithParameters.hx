@@ -8,27 +8,33 @@ import haxe.Timer;
  */
 class MockCommandClassWithParameters extends Command<String>
 {
-	var _message : String;
+	//@Inject
+	public var message : String;
+	
+	//@Inject
+	public var test : CommandTriggerTest;
 	
 	public static var callCount 	: UInt = 0;
 	public static var sender 		: CommandTriggerTest = null;
 	
-	public function new() 
+	@Inject
+	public function new( text : String, sender : CommandTriggerTest ) 
 	{
 		super();
+		this.message 	= text;
+		MockCommandClassWithParameters.sender = sender;
 	}
 	
-	public function execute( text : String, sender : CommandTriggerTest ) : Void
+	override public function execute() : Void
 	{
 		MockCommandClassWithParameters.callCount++;
 		MockCommandClassWithParameters.sender = sender;
 		
-		this._message = text;
 		Timer.delay( this._end, 50 );
 	}
 	
 	function _end() : Void
 	{
-		this.complete( this._message );
+		this._complete( this.message );
 	}
 }

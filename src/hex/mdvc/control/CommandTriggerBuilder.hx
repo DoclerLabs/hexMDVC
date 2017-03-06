@@ -1,13 +1,12 @@
 package hex.mdvc.control;
 
-import haxe.macro.Expr.Position;
 import haxe.macro.Context;
+import haxe.macro.Expr.Access;
 import haxe.macro.Expr.Field;
-import hex.control.ICompletable;
-import hex.control.Responder;
+import haxe.macro.Expr.Position;
+import hex.control.async.IAsyncCallback;
 import hex.error.PrivateConstructorException;
 import hex.module.IModule;
-import hex.util.ClassUtil;
 import hex.util.MacroUtil;
 
 /**
@@ -21,9 +20,8 @@ class CommandTriggerBuilder
 	
 	#if macro
 	static var modulePack  				= MacroUtil.getPack( Type.getClassName( IModule ) );
-	static var ICompletableName 		= ClassUtil.getClassNameFromFullyQualifiedName( Type.getClassName( ICompletable ) );
 	static var CommandClassType 		= MacroUtil.getClassType( Type.getClassName( Command ) );
-	static var ICompletableClassType 	= MacroUtil.getClassType( Type.getClassName( ICompletable ) );
+	static var IAsyncCallbackType 		= MacroUtil.getClassType( Type.getClassName( IAsyncCallback ) );
 	#end
 	
 	/** @private */
@@ -51,8 +49,8 @@ class CommandTriggerBuilder
 						
 						if ( m.length > 1 )
 						{
-							Context.error(  	"'" + f.name + "' method defines more than one command mapping (with '@" + 
-													CommandTriggerBuilder.MapAnnotation + "' annotation) in '" + className + "' class", m[ 1 ].pos );
+							Context.error(  "'" + f.name + "' method defines more than one command mapping (with '@" + 
+											CommandTriggerBuilder.MapAnnotation + "' annotation) in '" + className + "' class", m[ 1 ].pos );
 						}
 						
 						var meta = m[ 0 ];
@@ -74,7 +72,7 @@ class CommandTriggerBuilder
 											}
 											catch ( e : Dynamic )
 											{
-												Context.error( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
+												Context.error( "Invalid class name mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
 													"' annotation) to '" + f.name + "' method in '" + className + "' class", param.pos );
 											}
 											
@@ -93,7 +91,7 @@ class CommandTriggerBuilder
 						
 						if ( command.name == null )
 						{
-							Context.error( "Invalid class reference mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
+							Context.error( "Invalid class name mapped (with '@" + CommandTriggerBuilder.MapAnnotation + 
 								"' annotation) to '" + f.name + "' method in '" + className + "' class", command.pos );
 						}
 						
@@ -106,80 +104,18 @@ class CommandTriggerBuilder
 								"' annotation), but it doesn't extend '" + CommandClassType.module + "' class", command.pos );
 						}
 
-						//
-						var argumentDatas : Array<{name:String, type:String}> = [];
-						for ( arg in func.args )
-						{
-							switch ( arg.type )
-							{
-								case TPath( p ):
-									
-									var t : haxe.macro.Type = Context.getType( p.pack.concat( [ p.name ] ).join( '.' ) );
-									var argumentType : String = "";
-									
-									switch ( t )
-									{
-										case TInst( t, p ):
-											var ct = t.get();
-											argumentType = ct.pack.concat( [ct.name] ).join( '.' );
-											
-										case TAbstract( t, params ):
-											argumentType = t.toString();
-											
-										case TDynamic( t ):
-											argumentType = "Dynamic";
-											
-										default:
-									}
 
-									argumentDatas.push( { name: arg.name, type: argumentType } );
-
-								default:
-							}
-						}
-
-						var responderTypePath = switch ( func.ret )
-						{
-							case TPath( p ): 
-									
-									if ( p.name != ICompletableName )
-									{
-										var returnType = Context.getType( p.name );
-										
-										if ( !MacroUtil.implementsInterface( MacroUtil.getClassType( p.name ), ICompletableClassType ) )
-										{
-											Context.error( "returned type '" + p.name + "' doesn't implement '" + ICompletableClassType.module + "' interface", f.pos );
-										}
-										else
-										{
-											switch( returnType ) 
-											{ 
-												case TInst( t, s ): 
-													MacroUtil.getTypePath( '' + t );
-													
-												default: 
-													MacroUtil.getTypePath( Type.getClassName( Responder ) );
-											}
-										}
-									}
-									else
-									{
-										MacroUtil.getTypePath( Type.getClassName( Responder ) );
-									}
-									
-							default: null;
-						}
-						
-						var args = [ for ( arg in argumentDatas ) macro $i { arg.name } ];
-						
+						var args = [ for ( arg in func.args )  macro $i { arg.name } ];
+		
 						func.expr = macro 
 						{
-							var command = new $typePath();
+							var command = new $typePath( $a { args } );
 							this.injector.injectInto( command );
 							command.setOwner( this.injector.getInstance( $p { modulePack } ) );
-							Reflect.callMethod( command, Reflect.field( command, command.executeMethodName ), $a { args } );
-							return new $responderTypePath( command );
+							command.execute();
+							return command;
 						};
+						
 					}
 				}
 				
@@ -187,6 +123,22 @@ class CommandTriggerBuilder
 			}
 		}
 		
+		fields.push({ 
+				kind: FVar(TPath( { name: "IModule", pack:  [ "hex", "module" ], params: [] } ), null ), 
+				meta: [ { name: "Inject", params: [], pos: Context.currentPos() }, { name: ":noCompletion", params: [], pos: Context.currentPos() } ], 
+				name: "module", 
+				access: [ Access.APublic ],
+				pos: Context.currentPos()
+			});
+			
+		fields.push({ 
+				kind: FVar(TPath( { name: "IDependencyInjector", pack:  [ "hex", "di" ], params: [] } ), null ), 
+				meta: [ { name: "Inject", params: [], pos: Context.currentPos() }, { name: ":noCompletion", params: [], pos: Context.currentPos() } ], 
+				name: "injector", 
+				access: [ Access.APublic ],
+				pos: Context.currentPos()
+			});
+			
 		return fields;
 	}
 }
