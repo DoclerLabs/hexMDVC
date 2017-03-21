@@ -4,7 +4,7 @@ import haxe.macro.Context;
 import haxe.macro.Expr.Access;
 import haxe.macro.Expr.Field;
 import haxe.macro.Expr.Position;
-import hex.control.async.IAsyncCallback;
+import hex.control.async.Expect;
 import hex.error.PrivateConstructorException;
 import hex.module.IModule;
 import hex.util.MacroUtil;
@@ -21,7 +21,7 @@ class CommandTriggerBuilder
 	#if macro
 	static var modulePack  				= MacroUtil.getPack( Type.getClassName( IModule ) );
 	static var CommandClassType 		= MacroUtil.getClassType( Type.getClassName( Command ) );
-	static var IAsyncCallbackType 		= MacroUtil.getClassType( Type.getClassName( IAsyncCallback ) );
+	static var IAsyncCallbackType 		= MacroUtil.getClassType( Type.getClassName( Expect ) );
 	#end
 	
 	/** @private */

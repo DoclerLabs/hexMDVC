@@ -1,6 +1,6 @@
 package hex.mdvc.control;
 
-import hex.control.async.IAsyncCallback;
+import hex.control.async.Expect;
 import hex.control.async.Nothing;
 
 /**
@@ -8,7 +8,7 @@ import hex.control.async.Nothing;
  */
 interface IMockController
 {
-	function print() : IAsyncCallback<Nothing>;
-	function say( text : String, sender : CommandTriggerTest ) : IAsyncCallback<String>;
+	function print() : Expect<Nothing>;
+	function say( text : String, sender : CommandTriggerTest ) : Expect<String>;
 	function sum( a : Int, b : Int ) : Int ;
 }
