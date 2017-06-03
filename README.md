@@ -1,6 +1,6 @@
 # hexMDVC - DEPRECATED 
 
-**This repository was experimental, now interesting features are integrated in other repositories.**
+:warning: **Warning**: This repository was experimental, now interesting features are integrated in other repositories.
 
 [![TravisCI Build Status](https://travis-ci.org/DoclerLabs/hexMDVC.svg?branch=master)](https://travis-ci.org/DoclerLabs/hexMDVC)
 hexMDVC is an implementation of Model Driver View Command
